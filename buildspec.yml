@@ -15,11 +15,11 @@ phases:
   build:
     commands:
       - echo Building green-agent...
-      - docker build -t agentbench-green:latest ./green-agent
+      - docker build --no-cache -t agentbench-green:latest ./green-agent
       - docker tag agentbench-green:latest $ECR_REGISTRY/agentbench-green:latest
 
       - echo Building purple-agent...
-      - docker build -t agentbench-purple:latest ./purple-agent
+      - docker build --no-cache -t agentbench-purple:latest ./purple-agent
       - docker tag agentbench-purple:latest $ECR_REGISTRY/agentbench-purple:latest
 
   post_build:
