@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "us-east-1"
+    AWS_ACCOUNT_ID: "848269696611"
+    ECR_REGISTRY: "848269696611.dkr.ecr.us-east-1.amazonaws.com"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+  build:
+    commands:
+      - echo Building green-agent...
+      - docker build -t agentbench-green:latest ./green-agent
+      - docker tag agentbench-green:latest $ECR_REGISTRY/agentbench-green:latest
+
+      - echo Building purple-agent...
+      - docker build -t agentbench-purple:latest ./purple-agent
+      - docker tag agentbench-purple:latest $ECR_REGISTRY/agentbench-purple:latest
+
+  post_build:
+    commands:
+      - echo Pushing green-agent to ECR...
+      - docker push $ECR_REGISTRY/agentbench-green:latest
+
+      - echo Pushing purple-agent to ECR...
+      - docker push $ECR_REGISTRY/agentbench-purple:latest
+
+      - echo Done. Images pushed successfully.
