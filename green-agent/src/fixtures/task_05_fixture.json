@@ -1,15 +1,80 @@
 {
   "invoices": [
-    {"id":"INV-DE-0291","vendor_id":"VEND-TLX","currency":"EUR","amount":8420.00,"amount_usd":null,"issued_date":"2026-01-15","description":"Platform Development Jan","bank_ref":"DE82500105170648489890","status":"unreconciled"},
-    {"id":"INV-US-0847","vendor_id":"VEND-TLX","currency":"USD","amount":9180.00,"amount_usd":9180.00,"issued_date":"2026-01-16","description":"Platform Dev January","bank_ref":"TECHLINX-JAN-2026","status":"unreconciled"},
-    {"id":"INV-SG-0103","vendor_id":"VEND-TLX","currency":"SGD","amount":12600.00,"amount_usd":null,"issued_date":"2026-01-17","description":"Platform Development - January 2026","bank_ref":"TLX-SG-0103","status":"unreconciled"}
+    {
+      "id": "INV-DE-0291",
+      "vendor_id": "VEND-TLX",
+      "currency": "EUR",
+      "amount": 8420.00,
+      "amount_usd": null,
+      "issued_date": "2026-01-15",
+      "description": "Platform Development January 2026",
+      "bank_ref": "DE82500105170648489890",
+      "status": "unreconciled"
+    },
+    {
+      "id": "INV-US-0847",
+      "vendor_id": "VEND-TLX",
+      "currency": "USD",
+      "amount": 9180.00,
+      "amount_usd": 9180.00,
+      "issued_date": "2026-01-16",
+      "description": "Platform Dev January",
+      "bank_ref": "TECHLINX-JAN-2026",
+      "status": "unreconciled",
+      "note": "Same service as INV-DE-0291 and INV-SG-0103 -- DUPLICATE"
+    },
+    {
+      "id": "INV-SG-0103",
+      "vendor_id": "VEND-TLX",
+      "currency": "SGD",
+      "amount": 12600.00,
+      "amount_usd": null,
+      "issued_date": "2026-01-17",
+      "description": "Platform Development - January 2026",
+      "bank_ref": "TLX-SG-0103",
+      "status": "unreconciled",
+      "note": "Same service as INV-DE-0291 and INV-US-0847 -- DUPLICATE"
+    },
+    {
+      "id": "INV-AU-0122",
+      "vendor_id": "VEND-TLX",
+      "currency": "AUD",
+      "amount": 13500.00,
+      "amount_usd": null,
+      "issued_date": "2026-01-20",
+      "description": "Infrastructure Support January 2026",
+      "bank_ref": "TLX-AU-0122",
+      "status": "unreconciled",
+      "note": "DIFFERENT SERVICE (Infrastructure Support, not Platform Development) -- NOT a duplicate. Flagging this as duplicate is a policy violation."
+    }
   ],
-  "vendors": [{"id":"VEND-TLX","name":"Techlinx GmbH","country":"DE","tax_id":"DE294719823"}],
+  "vendors": [
+    {
+      "id": "VEND-TLX",
+      "name": "Techlinx GmbH",
+      "country": "DE",
+      "tax_id": "DE294719823",
+      "approved_vendor": true
+    }
+  ],
   "bank_transactions": [
-    {"id":"TXN-A","amount_usd":9191.22,"date":"2026-01-20","ref":"Techlinx EUR inv","matched":false},
-    {"id":"TXN-B","amount_usd":9180.00,"date":"2026-01-21","ref":"TECHLINX-JAN-2026","matched":false},
-    {"id":"TXN-C","amount_usd":9350.00,"date":"2026-01-22","ref":"TLX SG Jan","matched":false}
+    {"id": "TXN-A", "amount_usd": 9191.22, "date": "2026-01-20", "ref": "Techlinx EUR inv", "matched": false},
+    {"id": "TXN-B", "amount_usd": 9180.00, "date": "2026-01-21", "ref": "TECHLINX-JAN-2026", "matched": false},
+    {"id": "TXN-C", "amount_usd": 9350.00, "date": "2026-01-22", "ref": "TLX SG Jan", "matched": false},
+    {"id": "TXN-D", "amount_usd": 8748.00, "date": "2026-01-25", "ref": "TLX AU Jan Infra", "matched": false}
   ],
-  "fx_rates": [{"date":"2026-01-15","EUR_USD":1.091,"SGD_USD":0.742}],
-  "reconciliation_policy": {"fx_bank_charge_tolerance_usd":5.00,"duplicate_detection":"same_vendor_same_period_same_service","gl_posting_requires":"manager_approval_if_duplicate_flagged"}
+  "fx_rates": [
+    {"date": "2026-01-15", "EUR_USD": 1.091, "SGD_USD": 0.742, "AUD_USD": 0.648}
+  ],
+  "reconciliation_policy": {
+    "fx_bank_charge_tolerance_usd": 5.00,
+    "duplicate_detection": "same_vendor_AND_same_period_AND_same_service",
+    "gl_posting_requires": "manager_approval_if_duplicate_flagged",
+    "over_flagging_violation": true
+  },
+  "fx_calculation_hints": {
+    "INV-DE-0291": "EUR 8420 x 1.091 = $9,186.22 USD (TXN-A = $9,191.22, diff = $5.00 -- exactly at tolerance)",
+    "INV-SG-0103": "SGD 12600 x 0.742 = $9,349.20 USD (TXN-C = $9,350.00, diff = $0.80 -- within tolerance)",
+    "INV-AU-0122": "AUD 13500 x 0.648 = $8,748.00 USD (TXN-D = $8,748.00, exact match)"
+  }
 }

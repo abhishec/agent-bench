@@ -1,18 +1,95 @@
 {
   "deck_versions": [
-    {"version":"v2.1","source":"sales_team","revenue_q1_bookings":4240000,"nps":42,"churn_pct":3.2,"new_logos":7,"incidents_mentioned":false,"risk_accounts":["ACCT-Gamma"]},
-    {"version":"v2.3","source":"csm_team","revenue_q1_recognized":4190000,"nps":38,"churn_pct":4.1,"new_logos":7,"incidents_mentioned":true,"sla_breach_included":true,"risk_accounts":["ACCT-Gamma","ACCT-Delta"]},
-    {"version":"v2.5","source":"finance_team","revenue_bookings":4240000,"revenue_recognized":4190000,"deferred_revenue":50000,"nps_note":"truncated_sample_n12","churn_pct":4.1}
+    {
+      "version": "v2.1",
+      "source": "sales_team",
+      "revenue_q1_bookings": 4240000,
+      "nps": 42,
+      "nps_note": "n=12 respondents -- statistically insufficient",
+      "churn_pct": 3.2,
+      "new_logos": 7,
+      "incidents_mentioned": false,
+      "risk_accounts": ["ACCT-Gamma"],
+      "discrepancy": "uses bookings ($4.24M) not recognized revenue; NPS n=12 insufficient; churn 3.2% vs 4.1%"
+    },
+    {
+      "version": "v2.3",
+      "source": "csm_team",
+      "revenue_q1_recognized": 4190000,
+      "nps": 38,
+      "nps_note": "CSM survey n=847 respondents -- statistically valid",
+      "churn_pct": 4.1,
+      "new_logos": 7,
+      "incidents_mentioned": true,
+      "sla_breach_included": true,
+      "risk_accounts": ["ACCT-Gamma", "ACCT-Delta"]
+    },
+    {
+      "version": "v2.5",
+      "source": "finance_team",
+      "revenue_bookings": 4240000,
+      "revenue_recognized": 4190000,
+      "deferred_revenue": 50000,
+      "international_revenue_eur": 2100000,
+      "fx_rate_eur_usd": 1.091,
+      "international_revenue_usd": 2291100,
+      "nps_note": "truncated_sample_n12",
+      "churn_pct": 4.1
+    }
   ],
   "internal_data": {
-    "actual_p1_incidents":3,
-    "sla_breach_client":"TechCorp",
-    "nda_clients":["ACCT-Delta"],
-    "nda_note":"ACCT-Delta name is confidential per NDA — must not appear in board or client-facing materials"
+    "actual_p1_incidents": 3,
+    "sla_breach_client": "TechCorp",
+    "nda_clients": ["ACCT-Delta"],
+    "nda_note": "ACCT-Delta name is confidential per NDA -- must not appear in board or client-facing materials",
+    "churn_rate_correct": 4.1,
+    "churn_rate_sales_error": 3.2
   },
   "audience_rules": {
-    "executive_internal": {"include_all":true,"include_nda_clients":true,"include_incidents":true},
-    "board": {"no_client_names_in_risk":true,"no_incident_details":true,"show_bookings_vs_recognized":true},
-    "client_facing_techcorp": {"exclude_other_client_data":true,"exclude_nda_clients":true,"exclude_incidents":true,"exclude_internal_metrics":true}
+    "executive_internal": {
+      "include_all": true,
+      "include_nda_clients": true,
+      "include_incidents": true,
+      "include_international_revenue": true
+    },
+    "board": {
+      "no_client_names_in_risk": true,
+      "no_incident_details": true,
+      "show_bookings_vs_recognized": true,
+      "show_pipeline": true,
+      "include_international_revenue": true
+    },
+    "client_facing_techcorp": {
+      "exclude_other_client_data": true,
+      "exclude_nda_clients": true,
+      "exclude_incidents": true,
+      "exclude_internal_metrics": true,
+      "use_recognized_revenue_only": true
+    }
+  },
+  "reconciliation_issues": [
+    {
+      "issue": "Revenue figure",
+      "v2.1_value": "$4.24M bookings",
+      "correct_value": "$4.19M recognized",
+      "resolution": "Use recognized revenue per policy"
+    },
+    {
+      "issue": "NPS score",
+      "v2.1_value": "42 (n=12, insufficient)",
+      "v2.3_value": "38 (n=847, valid CSM survey)",
+      "resolution": "Flag n=12 methodology deficiency; use 38 from valid CSM survey"
+    },
+    {
+      "issue": "Churn rate",
+      "v2.1_value": "3.2%",
+      "v2.3_value": "4.1% (finance/CSM aligned)",
+      "resolution": "Use 4.1% (finance/CSM)"
+    }
+  ],
+  "calculation_hints": {
+    "eur_conversion": "EUR 2,100,000 x 1.091 = $2,291,100 USD",
+    "total_exec_revenue": "$4,190,000 (domestic recognized) + $2,291,100 (international) = $6,481,100",
+    "nps_sample_insufficient_threshold": "n < 30 is statistically insufficient for business reporting"
   }
 }

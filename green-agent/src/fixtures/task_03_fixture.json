@@ -1,15 +1,64 @@
 {
-  "employees": [{"id":"EMP-MR","name":"Marcus Rodriguez","email":"marcus.r@company.com","department":"Engineering","title":"Senior Software Engineer","hire_date":"2022-03-15","termination_date":"2026-02-28","annual_salary":95000,"pto_balance_days":11.3,"status":"active"}],
+  "employees": [
+    {
+      "id": "EMP-MR",
+      "name": "Marcus Rodriguez",
+      "email": "marcus.r@company.com",
+      "department": "Engineering",
+      "title": "Senior Software Engineer",
+      "hire_date": "2024-03-15",
+      "termination_date": "2026-02-28",
+      "annual_salary": 95000,
+      "pto_balance_days": 11.3,
+      "status": "active",
+      "unvested_shares": 12500,
+      "equity_grant_price": 2.50,
+      "vesting_cliff_years": 2,
+      "vesting_note": "Hired 2024-03-15, terminating 2026-02-28 = 1yr 11mo. Under 2yr cliff: all 12500 unvested shares forfeited. Forfeiture value = 12500 * 2.50 = $31,250"
+    }
+  ],
   "assets": [
-    {"id":"ASSET-001","employee_id":"EMP-MR","type":"laptop","model":"MacBook Pro 16\"","serial":"MBP-2847","purchase_price":2499.00,"purchase_date":"2023-06-01","depreciation_years":3,"current_book_value":null,"status":"active"},
-    {"id":"ASSET-002","employee_id":"EMP-MR","type":"phone","model":"iPhone 14 Pro","serial":"IP-9271","purchase_price":999.00,"purchase_date":"2023-06-01","status":"active"}
+    {
+      "id": "ASSET-001",
+      "employee_id": "EMP-MR",
+      "type": "laptop",
+      "model": "MacBook Pro 16in",
+      "serial": "MBP-2847",
+      "purchase_price": 2499.00,
+      "purchase_date": "2023-06-01",
+      "depreciation_years": 3,
+      "depreciation_months": 36,
+      "current_book_value": null,
+      "status": "active",
+      "depreciation_hint": "Straight-line: monthly = 2499/36 = 69.4167. Feb 2026 = 32 months from Jun 2023. Book value = 2499 - 32*69.4167 = 2499 - 2221.33 = 277.67"
+    },
+    {
+      "id": "ASSET-002",
+      "employee_id": "EMP-MR",
+      "type": "phone",
+      "model": "iPhone 14 Pro",
+      "serial": "IP-9271",
+      "purchase_price": 999.00,
+      "purchase_date": "2023-06-01",
+      "status": "active"
+    }
   ],
   "access_records": [
-    {"id":"ACC-001","employee_id":"EMP-MR","system":"GitHub","role":"admin","status":"active"},
-    {"id":"ACC-002","employee_id":"EMP-MR","system":"AWS","role":"PowerUser","status":"active"},
-    {"id":"ACC-003","employee_id":"EMP-MR","system":"Salesforce","role":"admin","status":"active"},
-    {"id":"ACC-004","employee_id":"EMP-MR","system":"Slack","role":"member","status":"active"},
-    {"id":"ACC-005","employee_id":"EMP-MR","system":"1Password","role":"member","status":"active"}
+    {"id": "ACC-001", "employee_id": "EMP-MR", "system": "GitHub", "role": "admin", "status": "active", "revocation_group": "admin_systems"},
+    {"id": "ACC-002", "employee_id": "EMP-MR", "system": "AWS", "role": "PowerUser", "status": "active", "revocation_group": "admin_systems"},
+    {"id": "ACC-003", "employee_id": "EMP-MR", "system": "Salesforce", "role": "admin", "status": "active", "revocation_group": "admin_systems"},
+    {"id": "ACC-004", "employee_id": "EMP-MR", "system": "Slack", "role": "member", "status": "active", "revocation_group": "communication"},
+    {"id": "ACC-005", "employee_id": "EMP-MR", "system": "1Password", "role": "member", "status": "active", "revocation_group": "security_last"}
   ],
-  "hr_policies": {"pto_rounding":"floor_half_day","pto_payout_formula":"days_rounded * (annual_salary / 260)","benefits_end":"last_day_of_termination_month","access_revocation_order":["admin_systems_first","then_communication","then_security_last"]}
+  "hr_policies": {
+    "pto_rounding": "floor_half_day",
+    "pto_payout_formula": "days_rounded * (annual_salary / 260)",
+    "pto_example": "11.3 days rounds DOWN to 11.0. Payout = 11.0 * (95000/260) = 11.0 * 365.3846 = 4019.23",
+    "benefits_end": "last_day_of_termination_month",
+    "access_revocation_order": ["admin_systems_first", "then_communication", "then_security_last"],
+    "equity_vesting_cliff_years": 2,
+    "ip_transfer_required": true,
+    "non_compete_months": 6,
+    "non_compete_sector": "same_industry"
+  }
 }

@@ -1,22 +1,79 @@
 {
   "journal_entries": [
-    {"id":"JE-2026-0001","date":"2026-02-01","description":"Revenue recognition batch","count":287,"total_revenue":892450.00}
+    {"id": "JE-2026-0001", "date": "2026-02-01", "description": "Revenue recognition batch", "count": 287, "total_revenue": 892450.00}
   ],
   "deferred_revenue": [
-    {"contract_id":"C-2201","total":120000,"start":"2026-01-01","end":"2026-12-31","monthly_amount":10000,"period_days":365},
-    {"contract_id":"C-2198","total":48000,"start":"2026-02-15","end":"2026-08-14","partial_feb_FIXTURE_VALUE":3871,"note":"PLANTED_ERROR_recalculate_do_not_use_fixture_value","period_days":181}
+    {
+      "contract_id": "C-2201",
+      "total": 120000,
+      "start": "2026-01-01",
+      "end": "2026-12-31",
+      "monthly_amount": 10000,
+      "period_days": 365,
+      "feb_recognition": 10000,
+      "note": "Full month = $10,000. Use this value directly."
+    },
+    {
+      "contract_id": "C-2198",
+      "total": 48000,
+      "start": "2026-02-15",
+      "end": "2026-08-14",
+      "partial_feb_FIXTURE_VALUE": 3871,
+      "PLANTED_ERROR_WARNING": "DO NOT USE THIS VALUE -- it is intentionally wrong. Calculate using formula: (days_in_period / total_contract_days) x total_contract_value",
+      "period_days": 181,
+      "feb_days": 14,
+      "calculation": "14 / 181 * 48000 = 3713.26 (CORRECT VALUE)"
+    }
   ],
   "fixed_assets": [
-    {"asset_id":"FA-0047","name":"Server Cluster","cost":180000,"useful_life_months":60,"depreciation_start":"2024-09-01","monthly_depreciation":3000},
-    {"asset_id":"FA-0051","name":"Office Renovation","cost":45000,"useful_life_months":120,"depreciation_start":"2025-01-01","monthly_depreciation":375}
+    {
+      "asset_id": "FA-0047",
+      "name": "Server Cluster",
+      "cost": 180000,
+      "useful_life_months": 60,
+      "depreciation_start": "2024-09-01",
+      "monthly_depreciation": 3000
+    },
+    {
+      "asset_id": "FA-0051",
+      "name": "Office Renovation",
+      "cost": 45000,
+      "useful_life_months": 120,
+      "depreciation_start": "2025-01-01",
+      "monthly_depreciation": 375
+    }
   ],
   "fx_transactions": [
-    {"txn_id":"FX-001","currency":"EUR","amount":42000,"booking_rate":1.088,"close_rate":1.091},
-    {"txn_id":"FX-002","currency":"JPY","amount":5200000,"booking_rate":0.00672,"close_rate":0.00668}
+    {
+      "txn_id": "FX-001",
+      "currency": "EUR",
+      "amount": 42000,
+      "booking_rate": 1.088,
+      "close_rate": 1.091,
+      "unrealized_gain_loss": 126,
+      "calc": "(1.091 - 1.088) * 42000 = 0.003 * 42000 = +$126 gain"
+    },
+    {
+      "txn_id": "FX-002",
+      "currency": "JPY",
+      "amount": 5200000,
+      "booking_rate": 0.00672,
+      "close_rate": 0.00668,
+      "unrealized_gain_loss": -208,
+      "calc": "(0.00668 - 0.00672) * 5200000 = -0.00004 * 5200000 = -$208 loss"
+    }
   ],
   "accruals_pending": [
-    {"vendor":"AWS","estimated_amount":18500,"invoice_received":false,"gl_account":"6100-Cloud-Infrastructure"},
-    {"vendor":"Contractor NDA","estimated_amount":12000,"invoice_received":false,"gl_account":"6200-Contractor-Services"}
+    {"vendor": "AWS", "estimated_amount": 18500, "invoice_received": false, "gl_account": "6100-Cloud-Infrastructure"},
+    {"vendor": "Contractor NDA", "estimated_amount": 12000, "invoice_received": false, "gl_account": "6200-Contractor-Services"}
   ],
-  "close_period": "2026-02"
+  "close_period": "2026-02",
+  "calculation_hints": {
+    "C-2198_correct": "14/181 * 48000 = $3,713.26 (CORRECT). Fixture shows 3871 -- DO NOT USE.",
+    "depreciation_total": "FA-0047 ($3,000) + FA-0051 ($375) = $3,375",
+    "fx_net": "$126 (FX-001 gain) + (-$208) (FX-002 loss) = -$82 net unrealized loss",
+    "accruals_total": "$18,500 (AWS) + $12,000 (Contractor) = $30,500",
+    "journal_types_required": ["deferred_revenue_C2201", "deferred_revenue_C2198", "depreciation", "fx_variance", "accruals"],
+    "unique_journal_type_rule": "Each post_journal_entry call must use a UNIQUE journal_type. Duplicate = duplicate posting violation."
+  }
 }

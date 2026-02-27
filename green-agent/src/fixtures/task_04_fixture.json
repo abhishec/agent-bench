@@ -1,12 +1,68 @@
 {
-  "claims": [{"id":"CLM-2026-0234","policyholder_id":"CUST-EV","type":"water_damage","subtype":"burst_pipe","amount_claimed":12750,"status":"submitted","adjuster_notes":"photos show pipe damage consistent with age/freeze, no staging indicators","submitted_date":"2026-02-26"}],
-  "policies": [{"id":"HOME-001","customer_id":"CUST-EV","type":"homeowner","status":"active","dwelling_limit":300000,"deductible":1500,"premium_due_date":"2026-02-15","grace_period_days":30,"last_payment_date":"2026-02-14","last_payment_amount":187.50}],
-  "riders": [{"id":"RIDER-SEWER","policy_id":"HOME-001","type":"sewer_drain_backup","additional_coverage":10000,"applies_to":["sewer_backup","drain_backup"],"does_not_apply_to":["burst_pipe","water_main_break"]}],
-  "customers": [{"id":"CUST-EV","name":"Eleanor Vasquez","email":"e.vasquez@email.com","phone":"415-555-0234"}],
-  "claim_history": [
-    {"customer_id":"CUST-EV","claim_id":"CLM-2024-0891","date":"2024-08-12","type":"theft","amount":3200,"status":"paid"},
-    {"customer_id":"CUST-EV","claim_id":"CLM-2025-0127","date":"2025-03-20","type":"wind_damage","amount":8500,"status":"paid"},
-    {"customer_id":"CUST-EV","claim_id":"CLM-2026-0234","date":"2026-02-26","type":"water_damage","status":"submitted"}
+  "claims": [
+    {
+      "id": "CLM-2026-0234",
+      "policyholder_id": "CUST-EV",
+      "type": "water_damage",
+      "subtype": "burst_pipe",
+      "amount_claimed": 12750,
+      "status": "submitted",
+      "adjuster_notes": "photos show pipe damage consistent with age/freeze, no staging indicators",
+      "submitted_date": "2026-02-26"
+    }
   ],
-  "fraud_policy": {"claims_threshold":3,"lookback_months":18,"action":"mandatory_edd_review_not_denial"}
+  "policies": [
+    {
+      "id": "HOME-001",
+      "customer_id": "CUST-EV",
+      "type": "homeowner",
+      "status": "active",
+      "dwelling_limit": 300000,
+      "deductible": 1500,
+      "premium_due_date": "2026-02-15",
+      "grace_period_days": 30,
+      "last_payment_date": "2026-02-14",
+      "last_payment_amount": 187.50,
+      "grace_period_note": "Payment received 2026-02-14, due 2026-02-15 -- within grace period, policy ACTIVE"
+    }
+  ],
+  "riders": [
+    {
+      "id": "RIDER-SEWER",
+      "policy_id": "HOME-001",
+      "type": "sewer_drain_backup",
+      "additional_coverage": 10000,
+      "applies_to": ["sewer_backup", "drain_backup"],
+      "does_not_apply_to": ["burst_pipe", "water_main_break"],
+      "note": "POLICY TRAP: this rider does NOT cover burst pipes -- check applies_to carefully"
+    },
+    {
+      "id": "RIDER-WATER-BACKUP",
+      "policy_id": "HOME-001",
+      "type": "water_backup",
+      "additional_coverage": 5000,
+      "applies_to": ["overflow_from_sump_pump", "backed_up_drain"],
+      "does_not_apply_to": ["burst_pipe", "flood"],
+      "note": "Second rider -- also does NOT cover burst pipes. Must check ALL riders before concluding."
+    }
+  ],
+  "customers": [
+    {"id": "CUST-EV", "name": "Eleanor Vasquez", "email": "e.vasquez@email.com", "phone": "415-555-0234"}
+  ],
+  "claim_history": [
+    {"customer_id": "CUST-EV", "claim_id": "CLM-2024-0891", "date": "2024-08-12", "type": "theft", "amount": 3200, "status": "paid"},
+    {"customer_id": "CUST-EV", "claim_id": "CLM-2025-0127", "date": "2025-03-20", "type": "wind_damage", "amount": 8500, "status": "paid"},
+    {"customer_id": "CUST-EV", "claim_id": "CLM-2026-0234", "date": "2026-02-26", "type": "water_damage", "status": "submitted"}
+  ],
+  "fraud_policy": {
+    "claims_threshold": 3,
+    "lookback_months": 18,
+    "action": "mandatory_edd_review_not_denial",
+    "note": "3 claims exactly meets threshold -- EDD still mandatory. Do NOT deny claim."
+  },
+  "calculation_hints": {
+    "approved_amount": "12750 (claimed) - 1500 (deductible) = $11,250 pending EDD clearance",
+    "rider_exclusion": "Both RIDER-SEWER and RIDER-WATER-BACKUP do not cover burst_pipe",
+    "fraud_check": "3 claims total in 18 months (Aug 2024 to Feb 2026 = 18 months) -- exactly at threshold"
+  }
 }

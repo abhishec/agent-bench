@@ -1,21 +1,53 @@
 {
-  "subscriptions": [{"id":"SUB-NEXUS-001","customer_id":"CUST-NEXUS","current_plan":"Enterprise Legacy","current_plan_cost":8400,"new_plan":"Enterprise Cloud","new_plan_cost":5800,"migration_requested":"2026-02-27","status":"pending_migration"}],
-  "customers": [{"id":"CUST-NEXUS","name":"Nexus Corp","contact":"alex.rivera@nexuscorp.com","title":"CTO"}],
+  "subscriptions": [
+    {
+      "id": "SUB-NEXUS-001",
+      "customer_id": "CUST-NEXUS",
+      "current_plan": "Enterprise Legacy",
+      "current_plan_cost": 8400,
+      "current_plan_billing_cycle_start": "2026-02-01",
+      "new_plan": "Enterprise Cloud",
+      "new_plan_cost": 5800,
+      "migration_requested": "2026-02-27",
+      "migration_date_proposed": "2026-03-01",
+      "status": "pending_migration",
+      "api_integrations_count": 847,
+      "note": "847 integrations > 100 threshold: run_integration_compatibility_test required"
+    }
+  ],
+  "customers": [
+    {"id": "CUST-NEXUS", "name": "Nexus Corp", "contact": "alex.rivera@nexuscorp.com", "title": "CTO"}
+  ],
   "current_features": [
-    {"feature_id":"FEAT-001","name":"SSO","type":"SAML","status":"active","idp":"Okta SAML"},
-    {"feature_id":"FEAT-002","name":"Custom Subdomain","value":"nexus.platform.com","dns_configured":true,"status":"active"},
-    {"feature_id":"FEAT-003","name":"Dedicated IP","value":"203.0.113.47","whitelisted_by_customer":true,"status":"active"},
-    {"feature_id":"FEAT-004","name":"API Rate Limit","value":10000,"unit":"per_minute","current_usage_avg":3200,"status":"active"},
-    {"feature_id":"FEAT-005","name":"SLA","value":"99.95%","status":"active"},
-    {"feature_id":"FEAT-006","name":"QBR","frequency":"quarterly","status":"active"}
+    {"feature_id": "FEAT-001", "name": "SSO", "type": "SAML", "status": "active", "idp": "Okta SAML"},
+    {"feature_id": "FEAT-002", "name": "Custom Subdomain", "value": "nexus.platform.com", "dns_configured": true, "status": "active"},
+    {"feature_id": "FEAT-003", "name": "Dedicated IP", "value": "203.0.113.47", "whitelisted_by_customer": true, "status": "active"},
+    {"feature_id": "FEAT-004", "name": "API Rate Limit", "value": 10000, "unit": "per_minute", "current_usage_avg": 3200, "status": "active"},
+    {"feature_id": "FEAT-005", "name": "SLA", "value": "99.95%", "status": "active"},
+    {"feature_id": "FEAT-006", "name": "QBR", "frequency": "quarterly", "status": "active"}
   ],
   "new_plan_features": [
-    {"feature_id":"FEAT-001-NEW","name":"SSO","type":"OAuth2","note":"SAML not supported"},
-    {"feature_id":"FEAT-002-NEW","name":"Subdomain","value":"*.platform.com","note":"shared pool, no custom"},
-    {"feature_id":"FEAT-003-NEW","name":"IP","value":"shared_pool","note":"no dedicated"},
-    {"feature_id":"FEAT-004-NEW","name":"API Rate Limit","value":5000,"unit":"per_minute"},
-    {"feature_id":"FEAT-005-NEW","name":"SLA","value":"99.9%"},
-    {"feature_id":"FEAT-006-NEW","name":"QBR","frequency":"annual"}
+    {"feature_id": "FEAT-001-NEW", "name": "SSO", "type": "OAuth2", "note": "BREAKING: SAML not supported. Customer must reconfigure SSO."},
+    {"feature_id": "FEAT-002-NEW", "name": "Subdomain", "value": "*.platform.com", "note": "BREAKING: shared pool, custom subdomain not available"},
+    {"feature_id": "FEAT-003-NEW", "name": "IP", "value": "shared_pool", "note": "BREAKING: no dedicated IP, customer must update firewall whitelist"},
+    {"feature_id": "FEAT-004-NEW", "name": "API Rate Limit", "value": 5000, "unit": "per_minute", "note": "Non-breaking: customer avg usage 3200 < new limit 5000"},
+    {"feature_id": "FEAT-005-NEW", "name": "SLA", "value": "99.9%", "note": "BREAKING: SLA downgrade from 99.95% to 99.9%"},
+    {"feature_id": "FEAT-006-NEW", "name": "QBR", "frequency": "annual"}
   ],
-  "data_storage": {"customer_id":"CUST-NEXUS","total_gb":847,"export_max_file_gb":50}
+  "data_storage": {
+    "customer_id": "CUST-NEXUS",
+    "total_gb": 847,
+    "export_max_file_gb": 50,
+    "files_required": 17,
+    "enterprise_notification_threshold_gb": 500,
+    "note": "847 GB > 500 GB threshold: notify_enterprise_team 72 hours before export"
+  },
+  "billing_prorate": {
+    "current_plan_monthly": 8400,
+    "new_plan_monthly": 5800,
+    "migration_date": "2026-03-01",
+    "days_in_march": 31,
+    "unused_days_feb": 0,
+    "note": "Migration on Mar 1 = full month on new plan. Prorate if mid-month."
+  }
 }

@@ -1,23 +1,47 @@
 {
   "product_backlog": [
-    {"story_id":"US-441","title":"OAuth 2.0 SSO","estimate":13,"depends_on":[],"priority":1},
-    {"story_id":"US-442","title":"User Provisioning API","estimate":8,"depends_on":["US-441"],"priority":2},
-    {"story_id":"US-443","title":"Audit Log Export","estimate":5,"depends_on":["US-442"],"priority":3},
-    {"story_id":"US-444","title":"MFA Enforcement","estimate":8,"depends_on":["US-441"],"priority":2},
-    {"story_id":"US-445","title":"Session Management","estimate":3,"depends_on":[],"priority":4},
-    {"story_id":"US-446","title":"Role-Based Access","estimate":8,"depends_on":["US-442"],"priority":3},
-    {"story_id":"US-447","title":"SSO Admin Dashboard","estimate":5,"depends_on":["US-441","US-442"],"priority":4}
+    {"story_id": "US-441", "title": "OAuth 2.0 SSO", "estimate": 13, "depends_on": [], "priority": 1, "qa_required": true, "qa_points": 13},
+    {"story_id": "US-442", "title": "User Provisioning API", "estimate": 8, "depends_on": ["US-441"], "priority": 2, "qa_required": false},
+    {"story_id": "US-443", "title": "Audit Log Export", "estimate": 5, "depends_on": ["US-442"], "priority": 3, "qa_required": true, "qa_points": 5},
+    {"story_id": "US-444", "title": "MFA Enforcement", "estimate": 8, "depends_on": ["US-441"], "priority": 2, "qa_required": false},
+    {"story_id": "US-445", "title": "Session Management", "estimate": 3, "depends_on": [], "priority": 4, "qa_required": false},
+    {"story_id": "US-446", "title": "Role-Based Access", "estimate": 8, "depends_on": ["US-442"], "priority": 3, "qa_required": false},
+    {"story_id": "US-447", "title": "SSO Admin Dashboard", "estimate": 5, "depends_on": ["US-441", "US-442"], "priority": 4, "qa_required": true, "qa_points": 5, "external_dependency": "US-448"}
+  ],
+  "external_dependencies": [
+    {
+      "id": "US-448",
+      "title": "Database Migration for SSO",
+      "owner_team": "Backend",
+      "blocks": ["US-447"],
+      "expected_completion": "End of Sprint 1",
+      "note": "Cross-team dependency. Must document as risk/assumption. Backend team owns this."
+    }
   ],
   "team": [
-    {"engineer":"Alice Chen","capacity_per_sprint":10,"pto_days":[]},
-    {"engineer":"Bob Park","capacity_per_sprint":10,"pto_days":["2026-03-04","2026-03-05"],"pto_points_lost":4},
-    {"engineer":"Carol Wu","capacity_per_sprint":10,"pto_days":[]},
-    {"engineer":"David Kim","capacity_per_sprint":8,"pto_days":[],"note":"part-time"}
+    {"engineer": "Alice Chen", "capacity_per_sprint": 10, "pto_days": []},
+    {"engineer": "Bob Park", "capacity_per_sprint": 10, "pto_days": ["2026-03-04", "2026-03-05"], "pto_points_lost": 4},
+    {"engineer": "Carol Wu", "capacity_per_sprint": 10, "pto_days": []},
+    {"engineer": "David Kim", "capacity_per_sprint": 8, "pto_days": [], "note": "part-time"}
   ],
+  "qa_team": {
+    "capacity_per_sprint": 15,
+    "note": "QA capacity is SEPARATE from dev team capacity. Track QA points independently.",
+    "qa_required_for": ["US-441", "US-443", "US-447"]
+  },
   "sprints": [
-    {"id":"sprint_1","start":"2026-03-02","end":"2026-03-13","days":10},
-    {"id":"sprint_2","start":"2026-03-16","end":"2026-03-27","days":10}
+    {"id": "sprint_1", "start": "2026-03-02", "end": "2026-03-13", "days": 10},
+    {"id": "sprint_2", "start": "2026-03-16", "end": "2026-03-27", "days": 10}
   ],
   "velocity_history": [38, 41, 37, 42],
-  "velocity_avg": 39.5
+  "velocity_avg": 39.5,
+  "calculation_hints": {
+    "sprint_1_raw_capacity": "10 + 10 + 10 + 8 = 38 pts",
+    "sprint_1_pto_adjustment": "38 - 4 (Bob PTO) = 34 pts adjusted",
+    "sprint_1_velocity_adjusted": "(34/38) * 39.5 = 35.3 pts (round to 35)",
+    "sprint_1_stories_total": "US-441(13) + US-442(8) + US-444(8) + US-445(3) = 32 pts",
+    "sprint_1_qa_usage": "US-441 QA = 13 pts (within 15 pt QA cap)",
+    "sprint_2_stories_total": "US-443(5) + US-446(8) + US-447(5) = 18 pts",
+    "sprint_2_qa_usage": "US-443 QA(5) + US-447 QA(5) = 10 pts (within 15 pt QA cap)"
+  }
 }

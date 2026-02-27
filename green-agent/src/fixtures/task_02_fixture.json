@@ -1,12 +1,96 @@
 {
-  "purchase_requests": [{"id":"PR-2024-0891","department":"Engineering","amount":47500,"description":"AWS Reserved Instances 3yr commitment","requester":"sarah.chen@company.com","requester_name":"Sarah Chen","manager":"david.park@company.com","manager_name":"David Park","commitment_years":3,"status":"pending"}],
-  "employees": [
-    {"id":"EMP-001","name":"David Park","email":"david.park@company.com","title":"Engineering Manager","approval_limit":25000,"pto_active":true,"delegate_to":"jennifer.walsh@company.com"},
-    {"id":"EMP-002","name":"Jennifer Walsh","email":"jennifer.walsh@company.com","title":"Acting Director","approval_limit":50000,"pto_active":false},
-    {"id":"EMP-003","name":"Robert Chen","email":"robert.chen@company.com","title":"VP Engineering","approval_limit":150000,"pto_active":false},
-    {"id":"EMP-004","name":"Sarah Chen","email":"sarah.chen@company.com","title":"Senior Engineer","pto_active":false}
+  "purchase_requests": [
+    {
+      "id": "PR-2024-0891",
+      "department": "Engineering",
+      "amount": 47500,
+      "description": "AWS Reserved Instances 3yr commitment",
+      "vendor": "AWS",
+      "service_type": "cloud_infrastructure",
+      "requester": "sarah.chen@company.com",
+      "requester_name": "Sarah Chen",
+      "manager": "david.park@company.com",
+      "manager_name": "David Park",
+      "commitment_years": 3,
+      "status": "pending",
+      "notes": "Multi-year contract (3yr) + AWS cloud service > $25K: requires legal review + TAR + VP approval"
+    }
   ],
-  "budgets": [{"department":"Engineering","quarter":"Q1-2026","allocated":200000,"spent":147000,"remaining":53000}],
-  "approval_chains": [{"department":"Engineering","manager_limit":25000,"director_limit":50000,"vp_limit":150000,"committee_required_above":150000}],
-  "pto_records": [{"employee_id":"EMP-001","start":"2026-02-25","end":"2026-03-03","delegate_to":"EMP-002","delegate_limit":50000}]
+  "employees": [
+    {
+      "id": "EMP-001",
+      "name": "David Park",
+      "email": "david.park@company.com",
+      "title": "Engineering Manager",
+      "approval_limit": 25000,
+      "pto_active": true,
+      "delegate_to": "jennifer.walsh@company.com"
+    },
+    {
+      "id": "EMP-002",
+      "name": "Jennifer Walsh",
+      "email": "jennifer.walsh@company.com",
+      "title": "Acting Director",
+      "approval_limit": 50000,
+      "pto_active": false
+    },
+    {
+      "id": "EMP-003",
+      "name": "Robert Chen",
+      "email": "robert.chen@company.com",
+      "title": "VP Engineering",
+      "approval_limit": 150000,
+      "pto_active": false
+    },
+    {
+      "id": "EMP-004",
+      "name": "Sarah Chen",
+      "email": "sarah.chen@company.com",
+      "title": "Senior Engineer",
+      "pto_active": false
+    }
+  ],
+  "budgets": [
+    {
+      "department": "Engineering",
+      "quarter": "Q1-2026",
+      "allocated": 200000,
+      "spent": 147000,
+      "remaining": 53000,
+      "status": "active",
+      "audit_flag": false
+    }
+  ],
+  "approval_chains": [
+    {
+      "department": "Engineering",
+      "manager_limit": 25000,
+      "director_limit": 50000,
+      "vp_limit": 150000,
+      "committee_required_above": 150000
+    }
+  ],
+  "pto_records": [
+    {
+      "employee_id": "EMP-001",
+      "start": "2026-02-25",
+      "end": "2026-03-03",
+      "delegate_to": "EMP-002",
+      "delegate_limit": 50000
+    }
+  ],
+  "vendor_pvl": [
+    {
+      "vendor": "AWS",
+      "pvl_status": "approved",
+      "pvl_expiry": "2026-12-31",
+      "tier": "preferred"
+    }
+  ],
+  "policy_thresholds": {
+    "pvl_required": true,
+    "tar_required_for_cloud_above": 25000,
+    "legal_review_required_for_commitment_years_above": 1,
+    "vp_approval_expiry_hours": 48
+  }
 }

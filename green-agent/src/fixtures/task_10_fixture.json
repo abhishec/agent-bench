@@ -1,11 +1,80 @@
 {
-  "disputes": [{"id":"DSP-2026-0445","claimant":"Omega Systems","respondent":"Nova Engineering","third_party":"Atlas Capital","status":"open","created":"2026-02-01"}],
-  "contracts": [{"id":"CONT-001","parties":["Omega Systems","Nova Engineering"],"type":"fixed_price","original_value":900000,"actual_spend":1017500,"overrun":117500}],
-  "change_orders": [
-    {"id":"CO-001","amount":22000,"signed_by":["Omega Systems","Nova Engineering"],"status":"valid","disputed":false},
-    {"id":"CO-002","amount":18200,"signed_by":["Omega Systems"],"status":"disputed","note":"Nova signed, Omega disputes"},
-    {"id":"CO-003","amount":14400,"signed_by":[],"verbal_only":true,"status":"invalid","note":"verbal agreement, no signature"}
+  "disputes": [
+    {
+      "id": "DSP-2026-0445",
+      "claimant": "Omega Construction",
+      "respondent": "Nova Corp",
+      "third_party": "Atlas Capital",
+      "status": "open",
+      "created": "2026-02-01",
+      "project_delay_days": 45,
+      "delay_start": "2026-01-05",
+      "contract_liquidated_damages_per_day": 2500,
+      "liquidated_damages_total": 112500,
+      "note": "45 days delay x $2,500/day = $112,500 in liquidated damages (separate from overrun claim)"
+    }
   ],
-  "retention": [{"holder":"Atlas Capital","amount":85000,"release_condition":"dispute_fully_resolved","status":"held"}],
-  "dispute_policy": {"mediator_required_above":50000,"signed_co_mandatory_payment":true,"verbal_co_standing":"none","retention_release":"after_full_resolution"}
+  "contracts": [
+    {
+      "id": "CONT-001",
+      "parties": ["Omega Construction", "Nova Corp"],
+      "type": "fixed_price",
+      "original_value": 900000,
+      "actual_spend": 1027500,
+      "overrun": 127500,
+      "co_001_due_date": "2026-01-15",
+      "co_001_days_overdue": 44,
+      "statutory_interest_rate_annual": 0.08
+    }
+  ],
+  "change_orders": [
+    {
+      "id": "CO-001",
+      "amount": 22000,
+      "signed_by": ["Omega Construction", "Nova Corp"],
+      "status": "valid",
+      "disputed": false,
+      "due_date": "2026-01-15",
+      "note": "Signed by ALL parties -- MANDATORY payment regardless of other disputes"
+    },
+    {
+      "id": "CO-002",
+      "amount": 18200,
+      "signed_by": ["Nova Corp"],
+      "status": "disputed",
+      "note": "Only one party signed -- goes to mediation. Omega disputes authorization."
+    },
+    {
+      "id": "CO-003",
+      "amount": 14400,
+      "signed_by": [],
+      "verbal_only": true,
+      "status": "invalid",
+      "note": "POLICY TRAP: verbal agreement only, no signatures -- zero legal standing, cannot be claimed"
+    }
+  ],
+  "retention": [
+    {
+      "holder": "Atlas Capital",
+      "amount": 85000,
+      "release_condition": "dispute_fully_resolved",
+      "status": "held",
+      "note": "DO NOT release -- freeze until all disputes resolved"
+    }
+  ],
+  "dispute_policy": {
+    "mediator_required_above": 50000,
+    "signed_co_mandatory_payment": true,
+    "verbal_co_standing": "none",
+    "retention_release": "after_full_resolution",
+    "liquidated_damages_threshold_days": 30,
+    "liquidated_damages_per_day": 2500,
+    "statutory_interest_rate_annual": 0.08
+  },
+  "arithmetic_hints": {
+    "co_001_interest": "22000 * 0.08 * (44/365) = 22000 * 0.08 * 0.1205 = $212.05",
+    "net_mediation_amount": "127500 overrun - 22000 CO-001 (undisputed) = $105,500",
+    "liquidated_damages": "45 days * $2,500 = $112,500 (separate claim)",
+    "total_claim_value": "$105,500 mediation + $112,500 liquidated damages = $218,000"
+  }
 }

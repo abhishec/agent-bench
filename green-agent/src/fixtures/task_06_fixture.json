@@ -1,15 +1,89 @@
 {
-  "clients": [{"id":"CLIENT-TC","name":"TechCorp","sla_id":"SLA-TC-001"}],
-  "sla_configs": [{"id":"SLA-TC-001","client_id":"CLIENT-TC","uptime_pct":99.9,"response_time_p99_ms":200,"monthly_allowable_downtime_min":43.8,"maintenance_windows":[{"day":"Saturday","start_utc":"02:00","end_utc":"06:00"}]}],
+  "clients": [{"id": "CLIENT-TC", "name": "TechCorp", "sla_id": "SLA-TC-001"}],
+  "sla_configs": [
+    {
+      "id": "SLA-TC-001",
+      "client_id": "CLIENT-TC",
+      "uptime_pct": 99.9,
+      "response_time_p99_ms": 200,
+      "monthly_allowable_downtime_min": 43.8,
+      "monthly_fee": 15000,
+      "credit_tiers": {
+        "above_1x_threshold": 0.10,
+        "above_2x_threshold": 0.20,
+        "above_3x_threshold": 0.30
+      },
+      "maintenance_windows": [{"day": "Saturday", "start_utc": "02:00", "end_utc": "06:00"}]
+    }
+  ],
   "incidents": [
-    {"id":"INC-001","client_id":"CLIENT-TC","start":"2026-02-03T09:00:00Z","end":"2026-02-03T09:47:00Z","duration_min":47,"excluded":true,"exclusion_reason":"scheduled_maintenance","counted_downtime_min":0},
-    {"id":"INC-002","client_id":"CLIENT-TC","start":"2026-02-14T03:15:00Z","end":"2026-02-14T03:52:00Z","duration_min":37,"excluded":false,"counted_downtime_min":37},
-    {"id":"INC-003","client_id":"CLIENT-TC","start":"2026-02-21T02:30:00Z","end":"2026-02-21T04:45:00Z","duration_min":135,"excluded":true,"exclusion_reason":"maintenance_window_saturday","counted_downtime_min":0},
-    {"id":"INC-004","client_id":"CLIENT-TC","start":"2026-02-27T14:30:00Z","end":null,"status":"ongoing","elapsed_min":94,"p99_ms":450}
+    {
+      "id": "INC-001",
+      "client_id": "CLIENT-TC",
+      "start": "2026-02-03T09:00:00Z",
+      "end": "2026-02-03T09:47:00Z",
+      "duration_min": 47,
+      "excluded": true,
+      "exclusion_reason": "scheduled_maintenance",
+      "counted_downtime_min": 0,
+      "note": "EXCLUDED -- do not count toward SLA"
+    },
+    {
+      "id": "INC-002",
+      "client_id": "CLIENT-TC",
+      "start": "2026-02-14T03:15:00Z",
+      "end": "2026-02-14T03:52:00Z",
+      "duration_min": 37,
+      "excluded": false,
+      "counted_downtime_min": 37
+    },
+    {
+      "id": "INC-003",
+      "client_id": "CLIENT-TC",
+      "start": "2026-02-21T02:30:00Z",
+      "end": "2026-02-21T04:45:00Z",
+      "duration_min": 135,
+      "excluded": true,
+      "exclusion_reason": "maintenance_window_saturday",
+      "counted_downtime_min": 0,
+      "note": "EXCLUDED -- Saturday maintenance window 02:00-06:00 UTC"
+    },
+    {
+      "id": "INC-004",
+      "client_id": "CLIENT-TC",
+      "start": "2026-02-27T14:30:00Z",
+      "end": null,
+      "status": "ongoing",
+      "elapsed_min": 94,
+      "p99_ms": 450,
+      "note": "ONGOING -- 94 min counted. p99=450ms also breaches 200ms latency SLA"
+    }
   ],
   "oncall": [
-    {"id":"ONC-001","name":"Alice Nguyen","phone":"+1-415-555-0147","role":"primary","quiet_hours_local":"22:00-07:00","timezone":"America/Los_Angeles","quiet_hours_utc":"06:00-15:00"},
-    {"id":"ONC-002","name":"Bob Kim","phone":"+1-415-555-0283","role":"secondary"}
+    {
+      "id": "ONC-001",
+      "name": "Alice Nguyen",
+      "phone": "+1-415-555-0147",
+      "role": "primary",
+      "quiet_hours_local": "22:00-07:00",
+      "timezone": "America/Los_Angeles",
+      "quiet_hours_utc": "06:00-15:00",
+      "note": "Current time UTC 16:04 = Alice's local 08:04 -- NOT in quiet hours, OK to page"
+    },
+    {
+      "id": "ONC-002",
+      "name": "Bob Kim",
+      "phone": "+1-415-555-0283",
+      "role": "secondary"
+    }
   ],
-  "current_time_utc": "2026-02-27T16:04:00Z"
+  "current_time_utc": "2026-02-27T16:04:00Z",
+  "calculation_hints": {
+    "counted_incidents": "INC-002 (37 min) + INC-004 (94 min) = 131 min total",
+    "threshold": "43.8 min (99.9% uptime per month)",
+    "breach_multiplier": "131 / 43.8 = 2.99x threshold",
+    "credit_tier": "2.99x > 2x but < 3x -> 20% credit tier",
+    "credit_amount": "$15,000 monthly fee x 20% = $3,000 credit owed to TechCorp",
+    "latency_breach": "p99=450ms vs 200ms SLA threshold -- also breached"
+  }
 }

@@ -23,9 +23,10 @@ async def handle_task(
     """
     ep = tools_endpoint or GREEN_AGENT_MCP_URL
 
-    # Discover available tools
+    # Discover available tools — pass session_id so server returns only the
+    # 8-12 tools for this specific task (not all 130+ from every scenario)
     try:
-        tools = await discover_tools(ep)
+        tools = await discover_tools(ep, session_id=session_id)
     except Exception:
         tools = []
 

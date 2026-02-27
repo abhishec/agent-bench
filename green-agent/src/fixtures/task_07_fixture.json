@@ -1,14 +1,31 @@
 {
   "travelers": [{"id":"TRAV-JW","name":"James Whitfield","title":"VP of Sales","loyalty_tier":"GOLD","loyalty_program":"United","email":"j.whitfield@company.com"}],
   "bookings": [
-    {"id":"BK-001","traveler_id":"TRAV-JW","flight":"UA288","route":"SFO-NYC","date":"2026-02-28","time":"09:00","class":"business","cost":1240.00,"mileage":2586,"status":"cancelled","cancellation_reason":"weather_storm"},
-    {"id":"BK-002","traveler_id":"TRAV-JW","hotel":"Marriott Times Square","city":"NYC","checkin":"2026-02-28","checkout":"2026-03-02","rate_per_night":289.00,"nights":2,"total":578.00,"status":"active"},
-    {"id":"BK-003","traveler_id":"TRAV-JW","flight":"UA170","route":"NYC-LON","date":"2026-03-02","time":"18:00","class":"business","cost":4200.00,"mileage":3459,"status":"active"}
+    {"id":"BK-001","traveler_id":"TRAV-JW","flight":"UA288","route":"SFO-NYC","date":"2026-03-01","time":"09:00","class":"economy","cost":420.00,"mileage":2586,"status":"cancelled","cancellation_reason":"weather_storm","cancelled_by":"airline"},
+    {"id":"BK-002","traveler_id":"TRAV-JW","hotel":"Marriott Times Square","city":"NYC","checkin":"2026-03-01","checkout":"2026-03-03","rate_per_night":289.00,"nights":2,"total":578.00,"status":"active"},
+    {"id":"BK-003","traveler_id":"TRAV-JW","flight":"UA170","route":"NYC-LON","date":"2026-03-02","time":"18:00","class":"business","cost":4200.00,"mileage":3459,"status":"active","note":"international_connection_do_not_cancel"}
   ],
-  "travel_policy": {"economy_cap_domestic":500,"business_allowed_international":true,"domestic_rebook_cap":1500,"hotel_cap_domestic_per_night":200,"gold_tier_perks":["free_same_day_change","upgrade_priority"]},
+  "travel_policy": {
+    "economy_cap_domestic": 500,
+    "business_allowed_international": true,
+    "domestic_business_requires_svp_approval": true,
+    "domestic_rebook_cap": 1500,
+    "hotel_cap_domestic_per_night": 200,
+    "hotel_overage_requires": "vp_exception_or_rebooking",
+    "connection_buffer_minimum_hours": 3,
+    "gold_tier_perks": ["free_same_day_change","upgrade_priority","waived_fare_diff_if_airline_cancels"]
+  },
   "alternatives": [
-    {"id":"ALT-001","flight":"AA1043","route":"SFO-NYC","date":"2026-03-01","time":"07:00","class":"business","cost":1100.00,"available":true,"arrives":"2026-03-01T15:30"},
-    {"id":"ALT-002","flight":"UA301","route":"SFO-NYC","date":"2026-02-28","time":"14:00","class":"economy","cost":380.00,"available":true},
-    {"id":"ALT-003","flight":"UA515","route":"SFO-NYC","date":"2026-03-01","time":"11:00","class":"economy","cost":420.00,"available":true}
-  ]
+    {"id":"ALT-001","flight":"AA1043","route":"SFO-NYC","date":"2026-03-01","time":"07:00","class":"business","cost":1100.00,"available":true,"arrives":"2026-03-01T15:30","note":"arrives 15:30 -- 26.5hrs before NYC-LON 18:00 Mar 2 -- buffer OK"},
+    {"id":"ALT-002","flight":"UA301","route":"SFO-NYC","date":"2026-03-01","time":"14:00","class":"economy","cost":380.00,"available":true,"arrives":"2026-03-01T22:30"},
+    {"id":"ALT-003","flight":"UA515","route":"SFO-NYC","date":"2026-03-01","time":"11:00","class":"economy","cost":420.00,"available":true,"arrives":"2026-03-01T19:15"},
+    {"id":"ALT-004","flight":"DL902","route":"SFO-NYC","date":"2026-03-01","time":"08:30","class":"economy","cost":510.00,"available":true,"arrives":"2026-03-01T17:00","note":"POLICY TRAP: $510 exceeds $500 economy cap -- do NOT book without approval"}
+  ],
+  "connection_check": {
+    "BK-003_departure": "2026-03-02T18:00",
+    "minimum_buffer_hours": 3,
+    "AA1043_arrival": "2026-03-01T15:30",
+    "buffer_hours_available": 26.5,
+    "buffer_ok": true
+  }
 }

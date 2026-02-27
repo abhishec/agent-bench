@@ -1,17 +1,65 @@
 {
-  "orders": [{"id":"ORD-001","customer_id":"CUST-001","status":"processing","total":160.00,"payment_method":"credit_card","gift_card_id":"GC-001","created_at":"2026-02-20T10:00:00Z"}],
+  "orders": [
+    {
+      "id": "ORD-001",
+      "customer_id": "CUST-001",
+      "status": "processing",
+      "total": 160.00,
+      "payment_method": "credit_card",
+      "gift_card_id": "GC-001",
+      "created_at": "2026-02-20T10:00:00Z"
+    }
+  ],
   "order_items": [
-    {"id":"ITEM-A","order_id":"ORD-001","product_id":"PROD-001","variant":{"color":"blue","size":"large"},"quantity":1,"unit_price":45.00},
-    {"id":"ITEM-B","order_id":"ORD-001","product_id":"PROD-002","variant":{"size":"small"},"quantity":1,"unit_price":30.00},
-    {"id":"ITEM-C","order_id":"ORD-001","product_id":"PROD-003","variant":{},"quantity":1,"unit_price":25.00},
-    {"id":"ITEM-D","order_id":"ORD-001","product_id":"PROD-004","variant":{"size":"10"},"quantity":1,"unit_price":60.00}
+    {"id": "ITEM-A", "order_id": "ORD-001", "product_id": "PROD-001", "variant": {"color": "blue", "size": "large"}, "quantity": 1, "unit_price": 45.00},
+    {"id": "ITEM-B", "order_id": "ORD-001", "product_id": "PROD-002", "variant": {"size": "small"}, "quantity": 1, "unit_price": 30.00},
+    {"id": "ITEM-C", "order_id": "ORD-001", "product_id": "PROD-003", "variant": {}, "quantity": 1, "unit_price": 25.00},
+    {"id": "ITEM-D", "order_id": "ORD-001", "product_id": "PROD-004", "variant": {"size": "10"}, "quantity": 1, "unit_price": 60.00}
   ],
   "products": [
-    {"id":"PROD-001","name":"T-Shirt","variants":[{"color":"blue","size":"large","price":45.00},{"color":"red","size":"medium","price":42.00},{"color":"red","size":"large","price":45.00}]},
-    {"id":"PROD-002","name":"Jeans","variants":[{"size":"small","price":30.00},{"size":"medium","price":32.00},{"size":"large","price":35.00}]},
-    {"id":"PROD-003","name":"Hat","variants":[{"price":25.00}]},
-    {"id":"PROD-004","name":"Shoes","variants":[{"size":"10","price":60.00}]}
+    {
+      "id": "PROD-001",
+      "name": "T-Shirt",
+      "variants": [
+        {"color": "blue", "size": "large", "price": 45.00},
+        {"color": "red", "size": "medium", "price": 42.00},
+        {"color": "red", "size": "large", "price": 45.00}
+      ]
+    },
+    {
+      "id": "PROD-002",
+      "name": "Jeans",
+      "variants": [
+        {"size": "small", "price": 30.00},
+        {"size": "medium", "price": 32.00},
+        {"size": "large", "price": 35.00}
+      ]
+    },
+    {"id": "PROD-003", "name": "Hat", "variants": [{"price": 25.00}], "restocking_fee": 5.00},
+    {"id": "PROD-004", "name": "Shoes", "variants": [{"size": "10", "price": 60.00}]}
   ],
-  "gift_cards": [{"id":"GC-001","balance":12.43,"owner_id":"CUST-001"}],
-  "customers": [{"id":"CUST-001","name":"Jennifer Martinez","email":"jennifer.m@example.com"}]
+  "gift_cards": [{"id": "GC-001", "balance": 16.43, "owner_id": "CUST-001"}],
+  "customers": [
+    {
+      "id": "CUST-001",
+      "name": "Jennifer Martinez",
+      "email": "jennifer.m@example.com",
+      "loyalty_tier": "GOLD",
+      "loyalty_discount_pct": 10
+    }
+  ],
+  "pricing_rules": {
+    "gold_loyalty_discount": 0.10,
+    "restocking_fee_per_cancelled_item": 5.00,
+    "discount_applies_to": "exchanged_items_only",
+    "restocking_fee_deducted_from_refund": true
+  },
+  "calculation_hints": {
+    "ITEM-A_new_price": "42.00 * (1 - 0.10) = 42.00 * 0.90 = $37.80 (GOLD 10% discount)",
+    "ITEM-B_new_price": "35.00 * (1 - 0.10) = 35.00 * 0.90 = $31.50 (GOLD 10% discount)",
+    "ITEM-C_refund": "25.00 - 5.00 restocking = $20.00 net refund",
+    "net_credit_to_GC": "ITEM-A credit ($45-$37.80=$7.20) + ITEM-B charge (-$31.50+$30.00=-$1.50) + ITEM-C net refund ($20.00) = $25.70",
+    "new_GC_balance": "$16.43 + $25.70 = $42.13",
+    "new_order_total": "$37.80 + $31.50 + $60.00 = $129.30"
+  }
 }

@@ -1,11 +1,92 @@
 {
   "ar_aging": [
-    {"customer_id":"CUST-A","name":"Meridian Technologies","invoice_id":"INV-8821","amount":4200.00,"days_overdue":32,"contact_history":["email_2026-02-13"],"payment_history":"good_avg_28_days","first_offense":true},
-    {"customer_id":"CUST-B","name":"Apex Solutions","invoice_id":"INV-7743","amount":18500.00,"days_overdue":67,"contact_history":["email_x3","call_attempted"],"dispute":{"filed":true,"disputed_amount":5000,"reason":"services_not_rendered"}},
-    {"customer_id":"CUST-C","name":"Cascade Systems","invoice_id":"INV-9102","amount":2850.00,"days_overdue":15,"notes":"auto_pay_setup","auto_pay_status":"failed_card_expired_2026-02-25"},
-    {"customer_id":"CUST-D","name":"Vertex Global","invoice_id":"INV-6891","amount":127000.00,"days_overdue":94,"contact_history":["ceo_email_2026-01-28"],"bankruptcy":{"filed":true,"type":"Chapter_11","date":"2026-01-15","court":"SDNY"}},
-    {"customer_id":"CUST-E","name":"Solaris Partners","invoice_id":"INV-5567","amount":15400.00,"days_overdue":48,"payment_plan":{"agreed_date":"2025-12-01","monthly_amount":3850,"payments_received":["2025-12","2026-01"],"payments_missed":["2026-02"],"due_date_missed":"2026-02-01"}},
-    {"customer_id":"CUST-F","name":"Pinnacle Ventures","invoice_id":"INV-9834","amount":6900.00,"days_overdue":9,"new_customer":true,"contact_history":[]}
+    {
+      "customer_id": "CUST-A",
+      "name": "Meridian Technologies",
+      "invoice_id": "INV-8821",
+      "amount": 4200.00,
+      "days_overdue": 32,
+      "contact_history": ["email_2026-02-13"],
+      "payment_history": "good_avg_28_days",
+      "first_offense": true
+    },
+    {
+      "customer_id": "CUST-B",
+      "name": "Apex Solutions",
+      "invoice_id": "INV-7743",
+      "amount": 18500.00,
+      "days_overdue": 67,
+      "contact_history": ["email_x3", "call_attempted"],
+      "dispute": {"filed": true, "disputed_amount": 5000, "reason": "services_not_rendered", "undisputed_amount": 13500}
+    },
+    {
+      "customer_id": "CUST-C",
+      "name": "Cascade Systems",
+      "invoice_id": "INV-9102",
+      "amount": 2850.00,
+      "days_overdue": 15,
+      "notes": "auto_pay_setup",
+      "auto_pay_status": "failed_card_expired_2026-02-25"
+    },
+    {
+      "customer_id": "CUST-D",
+      "name": "Vertex Global",
+      "invoice_id": "INV-6891",
+      "amount": 127000.00,
+      "days_overdue": 94,
+      "contact_history": ["ceo_email_2026-01-28"],
+      "bankruptcy": {"filed": true, "type": "Chapter_11", "date": "2026-01-15", "court": "SDNY"},
+      "note": "IMMEDIATELY stop all collections -- bankruptcy protection applies"
+    },
+    {
+      "customer_id": "CUST-E",
+      "name": "Solaris Partners",
+      "invoice_id": "INV-5567",
+      "amount": 15400.00,
+      "days_overdue": 48,
+      "payment_plan": {
+        "agreed_date": "2025-12-01",
+        "monthly_amount": 3850,
+        "payments_received": ["2025-12", "2026-01"],
+        "payments_missed": ["2026-02"],
+        "due_date_missed": "2026-02-01"
+      },
+      "late_fee_calc": "15400 * 0.015 = $231.00"
+    },
+    {
+      "customer_id": "CUST-F",
+      "name": "Pinnacle Ventures",
+      "invoice_id": "INV-9834",
+      "amount": 6900.00,
+      "days_overdue": 9,
+      "new_customer": true,
+      "contact_history": [],
+      "note": "9 days overdue -- NO ACTION required (< 30 day threshold)"
+    },
+    {
+      "customer_id": "CUST-G",
+      "name": "Atlas Dynamics",
+      "invoice_id": "INV-4421",
+      "amount": 8200.00,
+      "days_overdue": 45,
+      "payment_plan": {
+        "agreed_date": "2025-11-15",
+        "installments": 3,
+        "installment_amount": 2733.33,
+        "payments_received": [],
+        "first_installment_missed": "2026-02-01",
+        "note": "First installment missed -- charge late fee + formal notice + 5-day cure"
+      },
+      "late_fee_calc": "8200 * 0.015 = $123.00"
+    }
   ],
-  "ar_policy": {"no_action_days":30,"reminder_days":"30-60","phone_escalation_days":"60-90","collections_days":90,"late_fee_pct":1.5,"cure_period_days":5,"bankruptcy_action":"stop_collections_file_proof_of_claim"}
+  "ar_policy": {
+    "no_action_days": 30,
+    "reminder_days": "30-60",
+    "phone_escalation_days": "60-90",
+    "collections_days": 90,
+    "late_fee_pct": 1.5,
+    "cure_period_days": 5,
+    "bankruptcy_action": "stop_collections_file_proof_of_claim"
+  }
 }

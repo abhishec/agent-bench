@@ -1,9 +1,54 @@
 {
-  "incident": {"id":"INC-2026-0312","started":"2026-02-27T11:23:00Z","severity":"P1","symptom":"checkout service returning 503 errors, 34% of transactions failing","status":"active"},
+  "incident": {
+    "id": "INC-2026-0312",
+    "started": "2026-02-27T11:23:00Z",
+    "severity": "P1",
+    "symptom": "checkout service returning 503 errors, 34% of transactions failing",
+    "status": "active",
+    "estimated_transaction_value_avg": 127.50,
+    "transactions_per_hour": 2400
+  },
   "deployments": [
-    {"deploy_id":"DEPLOY-A","service":"auth-service","deployed":"2026-02-27T09:15:00Z","changes":"Updated JWT validation library from v2.1 to v2.3","deployer":"alice.chen","rollback_available":true},
-    {"deploy_id":"DEPLOY-B","service":"product-catalog","deployed":"2026-02-26T16:40:00Z","changes":"Added Redis cache layer for product lookups, TTL=3600s","deployer":"bob.park","rollback_available":true},
-    {"deploy_id":"DEPLOY-C","service":"checkout-service","deployed":"2026-02-26T14:20:00Z","changes":"Integrated new Stripe SDK v3.2, updated payment intent creation","deployer":"carol.wu","rollback_available":true}
+    {
+      "deploy_id": "DEPLOY-A",
+      "service": "auth-service",
+      "deployed": "2026-02-27T09:15:00Z",
+      "changes": "Updated JWT validation library from v2.1 to v2.3",
+      "deployer": "alice.chen",
+      "rollback_available": true,
+      "red_herring": true,
+      "note": "JWT update is unrelated to product pricing -- RED HERRING"
+    },
+    {
+      "deploy_id": "DEPLOY-B",
+      "service": "product-catalog",
+      "deployed": "2026-02-26T16:40:00Z",
+      "changes": "Added Redis cache layer for product lookups, TTL=3600s",
+      "deployer": "bob.park",
+      "rollback_available": true,
+      "root_cause": true,
+      "note": "ROOT CAUSE: cache added BEFORE price was corrected. Stale $0.00 price cached for 3600s."
+    },
+    {
+      "deploy_id": "DEPLOY-C",
+      "service": "checkout-service",
+      "deployed": "2026-02-26T14:20:00Z",
+      "changes": "Integrated new Stripe SDK v3.2, updated payment intent creation",
+      "deployer": "carol.wu",
+      "rollback_available": true,
+      "contributing_factor": true,
+      "note": "Contributing factor: Stripe now rejects $0 amounts (previously allowed). Not root cause."
+    },
+    {
+      "deploy_id": "DEPLOY-D",
+      "service": "cdn-layer",
+      "deployed": "2026-02-27T10:50:00Z",
+      "changes": "CDN edge node configuration update -- cache-control headers for static assets only",
+      "deployer": "ops-team",
+      "rollback_available": true,
+      "red_herring": true,
+      "note": "RED HERRING: CDN config change only affects static assets (JS/CSS/images), has NO impact on API responses or application logic"
+    }
   ],
   "logs": {
     "checkout": [
@@ -20,8 +65,20 @@
     ]
   },
   "product_history": [
-    {"product_id":"PRD-447","price_changes":[
-      {"price_before":0.00,"price_after":45.00,"changed_at":"2026-02-26T17:30:00Z","reason":"New product pricing finalized"}
-    ]}
-  ]
+    {
+      "product_id": "PRD-447",
+      "price_changes": [
+        {"price_before": 0.00, "price_after": 45.00, "changed_at": "2026-02-26T17:30:00Z", "reason": "New product pricing finalized"},
+        {"note": "Redis cache was written at 16:52 BEFORE price corrected at 17:30 -- cache contains stale $0.00 price"}
+      ]
+    }
+  ],
+  "revenue_impact_calc": {
+    "failure_rate": 0.34,
+    "transactions_per_hour": 2400,
+    "failed_txns_per_hour": 816,
+    "avg_transaction_value": 127.50,
+    "revenue_loss_per_hour": 104040,
+    "note": "34% of 2400 txns/hr = 816 failed * $127.50 avg = $104,040/hr revenue impact"
+  }
 }
