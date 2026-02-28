@@ -73,6 +73,38 @@ async def health():
     return {"status": "ok", "agent": "green-benchmark", "scenarios": len(SCENARIO_REGISTRY)}
 
 
+# ── Scenario Listing ─────────────────────────────────────────────────────────
+@app.get("/scenarios")
+async def list_scenarios():
+    """List all registered scenarios with metadata."""
+    tasks = []
+    for task_id, cls in sorted(SCENARIO_REGISTRY.items()):
+        sc = cls()
+        tasks.append({
+            "task_id": task_id,
+            "domain": _infer_domain(task_id),
+            "tools_available": getattr(sc.meta, "tools_available", []),
+            "tool_count": len(getattr(sc.meta, "tools_available", [])),
+            "escalation_required": getattr(sc.meta, "escalation_required", False),
+        })
+    return {"total": len(tasks), "tasks": tasks}
+
+
+def _infer_domain(task_id: str) -> str:
+    domains = {
+        "task_01": "e-commerce", "task_02": "procurement", "task_03": "hr",
+        "task_04": "insurance", "task_05": "finance", "task_06": "operations",
+        "task_07": "travel", "task_08": "compliance", "task_09": "saas",
+        "task_10": "finance", "task_11": "accounting", "task_12": "e-commerce",
+        "task_13": "accounting", "task_14": "operations", "task_15": "strategy",
+        "task_16": "retail", "task_17": "retail", "task_18": "retail",
+        "task_19": "retail", "task_20": "retail", "task_21": "airline",
+        "task_22": "airline", "task_23": "airline",
+    }
+    return domains.get(task_id, "business")
+
+
+
 # ── MCP Tool Server ─────────────────────────────────────────────────────────
 class MCPRequest(BaseModel):
     tool: str
@@ -155,6 +187,77 @@ async def run_benchmark(req: BenchmarkRequest):
         "tool_calls_count": len(result.tool_calls),
         "scores": scores,
         "error": result.error,
+    }
+
+
+# ── Batch Benchmark ──────────────────────────────────────────────────────────
+@app.post("/benchmark/batch")
+async def run_benchmark_batch(request: dict):
+    """Run multiple benchmark tasks concurrently.
+    Body: {task_ids: [...], purple_agent_url: ..., difficulty: ...}
+    """
+    import asyncio
+    from src.task_manager import run_assessment
+
+    task_ids = request.get("task_ids", [])
+    purple_url = request.get("purple_agent_url", os.getenv("PURPLE_AGENT_URL", "http://localhost:9010"))
+    difficulty = request.get("difficulty", "none")
+    host_url = _own_url()
+
+    async def run_one(task_id):
+        import uuid as _uuid
+        session_id = str(_uuid.uuid4())
+        try:
+            result = await run_assessment(
+                task_id=task_id,
+                purple_agent_url=purple_url,
+                green_agent_url=host_url,
+                difficulty=difficulty,
+                session_id=session_id,
+            )
+            scores = result.score.summary()
+            # Record in stores
+            try:
+                record_result(
+                    task_id=task_id,
+                    scores=scores,
+                    tool_calls=result.tool_calls,
+                    answer=result.answer or "",
+                    error=result.error,
+                )
+            except Exception:
+                pass
+            try:
+                FailureTracker().record_run(
+                    task_id=task_id,
+                    score_result=result.score,
+                    tool_calls=result.tool_calls,
+                    session_id=session_id,
+                    answer=result.answer or "",
+                    error=result.error,
+                )
+            except Exception:
+                pass
+            return {
+                "task_id": task_id,
+                "scores": scores,
+                "tool_calls_count": len(result.tool_calls),
+                "answer_snippet": (result.answer or "")[:100],
+                "error": result.error,
+            }
+        except Exception as e:
+            return {"task_id": task_id, "error": str(e), "scores": {}}
+
+    results = await asyncio.gather(*[run_one(t) for t in task_ids])
+    passed = sum(
+        1 for r in results
+        if (r.get("scores", {}).get("overall", 0) or 0) >= 70.0
+    )
+    return {
+        "total": len(results),
+        "passed": passed,
+        "pass_rate": round(passed / max(1, len(results)), 3),
+        "results": list(results),
     }
 
 
@@ -330,8 +433,7 @@ async def export_training_data(hours: float = 4):
         tmp_path = f.name
         for ex in all_examples:
             if ex:
-                f.write(json.dumps(ex) + "
-")
+                f.write(json.dumps(ex) + "\n")
 
     try:
         s3_url = factory.upload_to_s3(tmp_path)
