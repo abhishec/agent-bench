@@ -72,33 +72,33 @@ async def run_task(
                     elif "text" in event:
                         final_answer += event["text"]
 
-                # If we have tool results but no final answer, send them back via follow-up POST
+                # If we have tool results but no final answer, send them back via follow-up POST.
+                # Reuse the same AsyncClient — we're still inside the outer `async with` block.
                 if tool_results and not final_answer:
                     followup_payload = {
                         "message": "Tool results:",
                         "conversationId": session_id,
                         "toolResults": tool_results,
                     }
-                    async with httpx.AsyncClient(timeout=TASK_TIMEOUT) as client:
-                        async with client.stream("POST", url, headers=headers, json=followup_payload) as followup_resp:
-                            if followup_resp.status_code >= 400:
-                                raise BrainOSUnavailableError(f"BrainOS follow-up returned {followup_resp.status_code}")
+                    async with client.stream("POST", url, headers=headers, json=followup_payload) as followup_resp:
+                        if followup_resp.status_code >= 400:
+                            raise BrainOSUnavailableError(f"BrainOS follow-up returned {followup_resp.status_code}")
 
-                            async for line in followup_resp.aiter_lines():
-                                if not line.startswith("data: "):
-                                    continue
-                                data_str = line[6:].strip()
-                                if not data_str or data_str == "[DONE]":
-                                    continue
-                                try:
-                                    event = json.loads(data_str)
-                                except json.JSONDecodeError:
-                                    continue
+                        async for line in followup_resp.aiter_lines():
+                            if not line.startswith("data: "):
+                                continue
+                            data_str = line[6:].strip()
+                            if not data_str or data_str == "[DONE]":
+                                continue
+                            try:
+                                event = json.loads(data_str)
+                            except json.JSONDecodeError:
+                                continue
 
-                                if "answer" in event:
-                                    final_answer = event["answer"]
-                                elif "text" in event:
-                                    final_answer += event["text"]
+                            if "answer" in event:
+                                final_answer = event["answer"]
+                            elif "text" in event:
+                                final_answer += event["text"]
 
                 return final_answer
 
