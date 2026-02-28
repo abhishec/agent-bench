@@ -4,6 +4,7 @@ Exposes: GET /.well-known/agent-card.json, POST / (A2A), POST /mcp, GET /mcp/too
          POST /benchmark  — run a benchmark task against purple and return scores
 """
 from __future__ import annotations
+import json
 import os
 import socket
 import uuid
@@ -309,3 +310,69 @@ async def report_list():
         return {"count": len(reports), "reports": reports}
     except Exception as e:
         return {"error": str(e), "reports": []}
+
+
+# -- Training Data Endpoints --------------------------------------------------
+@app.post("/training-data/export")
+async def export_training_data(hours: float = 4):
+    """Export recent benchmark runs as BrainOS fine-tuning JSONL to S3."""
+    from src.training_data_factory import TrainingDataFactory
+    import tempfile, os
+
+    factory = TrainingDataFactory()
+    positives, negatives = factory.generate_from_tracker(last_n_hours=hours)
+
+    all_examples = positives + negatives
+    if not all_examples:
+        return {"status": "no_data", "message": f"No runs found in last {hours} hours", "count": 0}
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+        tmp_path = f.name
+        for ex in all_examples:
+            if ex:
+                f.write(json.dumps(ex) + "
+")
+
+    try:
+        s3_url = factory.upload_to_s3(tmp_path)
+        os.unlink(tmp_path)
+        return {
+            "status": "ok",
+            "s3_url": s3_url,
+            "total_examples": len(all_examples),
+            "positive_examples": len(positives),
+            "negative_examples": len(negatives),
+            "hours_covered": hours,
+        }
+    except Exception as e:
+        os.unlink(tmp_path)
+        return {
+            "status": "ok_local_only",
+            "s3_error": str(e),
+            "total_examples": len(all_examples),
+            "positive_examples": len(positives),
+            "negative_examples": len(negatives),
+        }
+
+
+@app.get("/training-data/stats")
+async def training_data_stats():
+    """Show stats about available training data."""
+    from src.failure_tracker import FailureTracker
+    tracker = FailureTracker()
+    ucb = tracker.get_ucb_scores()
+    examples_4h = tracker.get_training_examples(last_n_hours=4)
+    examples_24h = tracker.get_training_examples(last_n_hours=24)
+
+    severity_counts = {"critical": 0, "moderate": 0}
+    for ex in examples_24h:
+        sev = ex.get("training_signal", {}).get("severity", "moderate")
+        severity_counts[sev] = severity_counts.get(sev, 0) + 1
+
+    return {
+        "training_examples_last_4h": len(examples_4h),
+        "training_examples_last_24h": len(examples_24h),
+        "severity_breakdown": severity_counts,
+        "top_failing_tasks": sorted(ucb, key=lambda t: ucb[t], reverse=True)[:5],
+        "tasks_needing_training": [t for t, s in ucb.items() if s > 2.0],
+    }
