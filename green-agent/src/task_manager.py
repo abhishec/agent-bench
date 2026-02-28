@@ -14,6 +14,7 @@ import httpx
 from src.mcp_server import seed_session_db, get_tool_calls, get_constraint_violations
 from src.scorer import ScoreResult, score_task
 from src.scenarios import SCENARIO_REGISTRY
+from src.failure_tracker import FailureTracker
 
 
 @dataclass
@@ -90,6 +91,18 @@ async def run_assessment(
     tool_calls = await get_tool_calls(session_id)
     violations = get_constraint_violations(session_id)
     score = score_task(task_id, fixture, fixture, tool_calls, answer, violations)
+
+    try:
+        FailureTracker().record_run(
+            task_id=task_id,
+            score_result=score,
+            tool_calls=tool_calls,
+            session_id=session_id,
+            answer=answer or "",
+            error=error,
+        )
+    except Exception as _ft_err:
+        print(f"[FailureTracker] record_run failed: {_ft_err}", flush=True)
 
     return AssessmentResult(
         task_id=task_id,
