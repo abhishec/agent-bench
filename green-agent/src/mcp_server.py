@@ -16,6 +16,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from src.difficulty_engine import DifficultyEngine
+
 DB_DIR = Path(__file__).parent / "db"
 DB_DIR.mkdir(exist_ok=True)
 
@@ -546,8 +548,9 @@ def get_constraint_violations(session_id: str) -> list[str]:
 
 # ── Async shims — used by server.py and task_manager.py ─────────────────────
 
-async def seed_session_db(session_id: str, fixture: dict, task_id: str = "") -> None:
+async def seed_session_db(session_id: str, fixture: dict, task_id: str = "", difficulty: str = "none") -> None:
     """Initialise session DB and associate task_id so tools load the right fixture."""
+    fixture = DifficultyEngine().apply(fixture, task_id, difficulty)
     conn = _get_db(session_id)
     if task_id:
         _set_task_id(conn, session_id, task_id)

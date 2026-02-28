@@ -21,8 +21,8 @@ PURPLE_URL = "https://purple.agentbench.usebrainos.com"
 TASKS = [f"task_{i:02d}" for i in range(1, 16)]
 
 
-async def run_once(client: httpx.AsyncClient, task_id: str, purple_url: str) -> dict:
-    payload = {"task_id": task_id, "purple_url": purple_url, "difficulty": "none"}
+async def run_once(client: httpx.AsyncClient, task_id: str, purple_url: str, difficulty: str = "none") -> dict:
+    payload = {"task_id": task_id, "purple_url": purple_url, "difficulty": difficulty}
     try:
         resp = await client.post(
             f"{GREEN_URL}/benchmark",
@@ -39,11 +39,11 @@ async def run_once(client: httpx.AsyncClient, task_id: str, purple_url: str) -> 
         return {"score": 0.0, "tool_calls": 0, "error": str(e)}
 
 
-async def run_task_k_times(task_id: str, k: int, purple_url: str) -> dict:
+async def run_task_k_times(task_id: str, k: int, purple_url: str, difficulty: str = "none") -> dict:
     scores = []
     async with httpx.AsyncClient() as client:
         for i in range(k):
-            result = await run_once(client, task_id, purple_url)
+            result = await run_once(client, task_id, purple_url, difficulty=difficulty)
             score = result["score"]
             scores.append(score)
             tc = result["tool_calls"]
@@ -64,11 +64,11 @@ async def run_task_k_times(task_id: str, k: int, purple_url: str) -> dict:
     }
 
 
-async def run_all(k: int, purple_url: str):
+async def run_all(k: int, purple_url: str, difficulty: str = "none"):
     results = []
     for task_id in TASKS:
         print(f"\n--- {task_id} ---")
-        r = await run_task_k_times(task_id, k, purple_url)
+        r = await run_task_k_times(task_id, k, purple_url, difficulty=difficulty)
         results.append(r)
         pk = "✓" if r["pass_k"] else "✗"
         print(f"  avg={r['avg_score']} pass@1={r['pass_at_1']}% pass^{k}={pk}")
@@ -94,18 +94,21 @@ def main():
     parser.add_argument("--task", help="Single task ID (e.g. task_01)")
     parser.add_argument("--k", type=int, default=3)
     parser.add_argument("--purple-url", default=PURPLE_URL)
+    parser.add_argument("--difficulty", default="none",
+                        choices=["none", "easy", "medium", "hard", "adversarial"],
+                        help="Difficulty level for adversarial benchmark modes (default: none)")
     args = parser.parse_args()
 
     if args.task:
-        print(f"Running {args.task} x{args.k} against {args.purple_url}")
-        result = asyncio.run(run_task_k_times(args.task, args.k, args.purple_url))
+        print(f"Running {args.task} x{args.k} against {args.purple_url} (difficulty={args.difficulty})")
+        result = asyncio.run(run_task_k_times(args.task, args.k, args.purple_url, difficulty=args.difficulty))
         pk = "PASS" if result["pass_k"] else "FAIL"
         print(f"\npass@1={result['pass_at_1']}% avg={result['avg_score']} pass^{args.k}={pk}")
         print(f"scores: {result['scores']}")
     else:
-        print(f"Running all 15 tasks x{args.k} against {args.purple_url}")
+        print(f"Running all 15 tasks x{args.k} against {args.purple_url} (difficulty={args.difficulty})")
         print(f"Green: {GREEN_URL}  Purple: {args.purple_url}\n")
-        asyncio.run(run_all(args.k, args.purple_url))
+        asyncio.run(run_all(args.k, args.purple_url, difficulty=args.difficulty))
 
 
 if __name__ == "__main__":

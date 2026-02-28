@@ -25,19 +25,30 @@ WEIGHTS = {
     "communication": 0.05,
 }
 
+DIFFICULTY_MULTIPLIERS = {
+    "none": 1.0,
+    "easy": 1.1,
+    "medium": 1.2,
+    "hard": 1.4,
+    "adversarial": 1.6,
+}
+
 
 @dataclass
 class ScoreResult:
     task_id: str
     dimensions: dict[str, float] = field(default_factory=dict)
     constraint_violations: list[str] = field(default_factory=list)
+    difficulty: str = "none"
 
     @property
     def overall(self) -> float:
-        return sum(
+        raw = sum(
             self.dimensions.get(dim, 0.0) * weight
             for dim, weight in WEIGHTS.items()
         )
+        multiplier = DIFFICULTY_MULTIPLIERS.get(self.difficulty, 1.0)
+        return min(100.0, raw * multiplier)
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -45,6 +56,8 @@ class ScoreResult:
             "overall": round(self.overall, 2),
             "dimensions": {k: round(v, 2) for k, v in self.dimensions.items()},
             "constraint_violations": self.constraint_violations,
+            "difficulty": self.difficulty,
+            "difficulty_multiplier": DIFFICULTY_MULTIPLIERS.get(self.difficulty, 1.0),
             "passed": self.overall >= 70.0,
         }
 
@@ -56,6 +69,7 @@ def score_task(
     actions_log: list[dict[str, Any]],
     agent_output: str,
     constraint_violations: list[str] | None = None,
+    difficulty: str = "none",
 ) -> ScoreResult:
     """
     Score a completed task using its registered scenario.
@@ -99,6 +113,7 @@ def score_task(
         task_id=task_id,
         dimensions=dimensions,
         constraint_violations=violations,
+        difficulty=difficulty,
     )
 
 

@@ -50,7 +50,7 @@ async def run_assessment(
 
     scenario = ScenarioClass()
     fixture = scenario.load_fixture()
-    await seed_session_db(session_id, fixture, task_id)
+    await seed_session_db(session_id, fixture, task_id, difficulty=difficulty)
 
     # Build A2A request
     tools_endpoint = green_agent_url or os.getenv("GREEN_AGENT_MCP_URL", "http://localhost:9009")
@@ -90,7 +90,7 @@ async def run_assessment(
 
     tool_calls = await get_tool_calls(session_id)
     violations = get_constraint_violations(session_id)
-    score = score_task(task_id, fixture, fixture, tool_calls, answer, violations)
+    score = score_task(task_id, fixture, fixture, tool_calls, answer, violations, difficulty=difficulty)
 
     try:
         FailureTracker().record_run(
