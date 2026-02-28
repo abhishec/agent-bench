@@ -1,0 +1,33 @@
+{
+  "employees": [
+    {
+      "employee_id": "EMP-3381",
+      "name": "Tom Rodriguez",
+      "email": "tom.rodriguez@company.com",
+      "department": "Engineering",
+      "direct_deposit": "DD-3381",
+      "status": "active"
+    }
+  ],
+  "department_limits": [
+    {
+      "department": "Engineering",
+      "trip_limit": 1500.00
+    }
+  ],
+  "expense_reports": [
+    {
+      "report_id": "EXP-8812",
+      "employee_id": "EMP-3381",
+      "status": "pending",
+      "line_items": [
+        {"category": "flight", "amount": 420.00, "receipt": "REC-8812-A"},
+        {"category": "hotel", "amount": 680.00, "receipt": "REC-8812-B"},
+        {"category": "meals", "amount": 145.00, "receipt": "REC-8812-C"}
+      ],
+      "total": 1245.00,
+      "receipts_attached": ["REC-8812-A", "REC-8812-B", "REC-8812-C"]
+    }
+  ],
+  "reimbursements": []
+}

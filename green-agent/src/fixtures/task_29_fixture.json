@@ -1,0 +1,36 @@
+{
+  "patients": [
+    {
+      "patient_id": "PAT-7782",
+      "name": "Robert Wilson",
+      "dob": "1962-11-08",
+      "email": "robert.wilson@email.com",
+      "insurance_id": "Medicare-B-7782",
+      "identity_verified": false
+    }
+  ],
+  "prescriptions": [
+    {
+      "rx_id": "RX-4421",
+      "patient_id": "PAT-7782",
+      "medication": "Lisinopril",
+      "dosage": "10mg",
+      "supply_days": 30,
+      "prescribing_provider": "PROV-0088",
+      "provider_name": "Dr. Patel",
+      "last_fill_date": "2026-01-28",
+      "refills_remaining": 5,
+      "refill_status": "pending"
+    }
+  ],
+  "insurance_plans": [
+    {
+      "insurance_id": "Medicare-B-7782",
+      "plan_name": "Medicare Part B",
+      "covered_medications": ["Lisinopril", "Metformin", "Atorvastatin"],
+      "lisinopril_copay": 10.00
+    }
+  ],
+  "patient_notified": false,
+  "copay": null
+}

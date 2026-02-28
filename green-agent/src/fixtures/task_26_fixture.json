@@ -1,0 +1,31 @@
+{
+  "employees": [
+    {
+      "employee_id": "EMP-2291",
+      "name": "Sarah Kim",
+      "email": "sarah.kim@company.com",
+      "department": "Marketing",
+      "manager_id": "MGR-0041",
+      "pto_balance": 12,
+      "status": "active"
+    }
+  ],
+  "managers": [
+    {
+      "manager_id": "MGR-0041",
+      "name": "David Park",
+      "email": "david.park@company.com"
+    }
+  ],
+  "team_calendar": {
+    "blackout_dates": [],
+    "existing_pto": [
+      {
+        "employee_id": "EMP-2299",
+        "dates": ["2026-03-16"]
+      }
+    ]
+  },
+  "pto_requests": [],
+  "notifications_sent": []
+}

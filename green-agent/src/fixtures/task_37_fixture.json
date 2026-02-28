@@ -1,0 +1,24 @@
+{
+  "leases": [
+    {
+      "lease_id": "LEASE-2281",
+      "tenant_id": "TEN-2281",
+      "tenant_name": "StartupCo LLC",
+      "contact_email": "CEO@startupco.com",
+      "unit": "Office Suite 4B",
+      "sqft": 1200,
+      "current_monthly_rate": 3800.00,
+      "expiry_date": "2026-03-31",
+      "status": "active",
+      "vp_approval_requested": false
+    }
+  ],
+  "renewal_policy": {
+    "max_increase_pct_without_approval": 7.0,
+    "approval_authority": "VP of Real Estate",
+    "market_rate_2026": 4100.00
+  },
+  "tenant_notified": false,
+  "lease_signed": false,
+  "approval_requests": []
+}

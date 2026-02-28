@@ -1,0 +1,45 @@
+{
+  "customers": [
+    {
+      "customer_id": "CUST-8812",
+      "name": "Patricia Moore",
+      "email": "patricia.moore8812@example.com",
+      "card_id": "CARD-8812",
+      "shipping_address": "445 Oak Street, Springfield, IL 62701"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "ORD-9921",
+      "customer_id": "CUST-8812",
+      "item": "Laptop Bag Pro",
+      "amount": 229.99,
+      "status": "delivered",
+      "order_date": "2026-02-05"
+    }
+  ],
+  "tracking": [
+    {
+      "order_id": "ORD-9921",
+      "tracking_number": "1Z999AA10123456784",
+      "carrier": "UPS",
+      "status": "delivered",
+      "delivery_date": "2026-02-10",
+      "delivery_address": "445 Oak Street, Springfield, IL 62701",
+      "signature": "P. Moore"
+    }
+  ],
+  "chargebacks": [
+    {
+      "chargeback_id": "CB-4421",
+      "customer_id": "CUST-8812",
+      "order_id": "ORD-9921",
+      "card_id": "CARD-8812",
+      "amount": 229.99,
+      "reason": "Item not received",
+      "status": "pending",
+      "evidence_submitted": false,
+      "evidence_type": null
+    }
+  ]
+}

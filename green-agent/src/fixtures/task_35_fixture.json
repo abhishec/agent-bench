@@ -1,0 +1,34 @@
+{
+  "employees": [
+    {
+      "employee_id": "EMP-9901",
+      "name": "Alice Thompson",
+      "email": "alice.thompson@company.com",
+      "department": "Finance",
+      "manager_id": "MGR-0028",
+      "user_id": "USR-9901"
+    }
+  ],
+  "managers": [
+    {
+      "manager_id": "MGR-0028",
+      "name": "Robert Chen",
+      "identity_confirmation_on_file": true,
+      "confirmation_timestamp": "2026-02-28T09:15:00Z"
+    }
+  ],
+  "accounts": [
+    {
+      "user_id": "USR-9901",
+      "employee_id": "EMP-9901",
+      "status": "locked",
+      "locked": true,
+      "lock_reason": "too_many_attempts",
+      "failed_attempts": 5,
+      "force_password_change": false,
+      "mfa_reset": false
+    }
+  ],
+  "employee_notified": false,
+  "security_log": []
+}

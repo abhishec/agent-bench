@@ -1,0 +1,34 @@
+{
+  "patients": [
+    {
+      "patient_id": "PAT-5521",
+      "name": "Lisa Johnson",
+      "dob": "1985-04-12",
+      "email": "lisa.johnson@email.com",
+      "insurance_id": "BCBS-9901",
+      "identity_verified": false
+    }
+  ],
+  "providers": [
+    {
+      "provider_id": "PROV-0041",
+      "name": "Dr. Chen",
+      "specialty": "cardiology",
+      "available_slots": [
+        {"date": "2026-03-07", "time": "14:00"},
+        {"date": "2026-03-09", "time": "10:00"},
+        {"date": "2026-03-12", "time": "15:30"}
+      ]
+    }
+  ],
+  "insurance_plans": [
+    {
+      "insurance_id": "BCBS-9901",
+      "plan_name": "BCBS PPO Gold",
+      "covered_specialties": ["cardiology", "primary_care", "orthopedics"],
+      "copay": 30.00
+    }
+  ],
+  "appointments": [],
+  "confirmation_sent": false
+}

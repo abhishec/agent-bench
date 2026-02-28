@@ -1,0 +1,27 @@
+{
+  "customers": [
+    {
+      "customer_id": "ENT-0091",
+      "name": "Acme Corp",
+      "tier": "Platinum",
+      "monthly_fee": 8500.00,
+      "contact_email": "ops@acmecorp.com",
+      "sla_hours": 24,
+      "sla_credit_pct": 0.10
+    }
+  ],
+  "tickets": [
+    {
+      "ticket_id": "TKT-8821",
+      "customer_id": "ENT-0091",
+      "subject": "Production database connectivity issue",
+      "status": "open",
+      "hours_open": 26,
+      "escalated": false,
+      "assigned_to": "ENG-0031"
+    }
+  ],
+  "sla_credits": [],
+  "customer_notified": false,
+  "escalation_log": []
+}

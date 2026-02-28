@@ -1,0 +1,26 @@
+{
+  "inventory": [
+    {
+      "sku": "SKU-8821",
+      "description": "Industrial Bearings",
+      "warehouse": "WH-001",
+      "quantity_on_hand": 45,
+      "reorder_point": 50,
+      "preferred_order_qty": 200,
+      "unit_cost": 42.50,
+      "preferred_vendor_id": "VEND-0091",
+      "status": "low_stock"
+    }
+  ],
+  "vendors": [
+    {
+      "vendor_id": "VEND-0091",
+      "name": "FastParts Inc",
+      "contact_email": "orders@fastparts.com",
+      "lead_time_days": 5,
+      "payment_terms": "net-30"
+    }
+  ],
+  "purchase_orders": [],
+  "inventory_log": []
+}

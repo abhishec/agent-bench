@@ -1,0 +1,25 @@
+{
+  "accounts": [
+    {
+      "card_id": "CC-7731",
+      "customer_name": "Maria Santos",
+      "email": "maria.santos7731@example.com",
+      "status": "active",
+      "fraud_alert": true
+    }
+  ],
+  "transactions": [
+    {
+      "txn_id": "TXN-9901",
+      "card_id": "CC-7731",
+      "merchant": "INTL-PURCHASE-TOKYO",
+      "amount": 847.50,
+      "date": "2026-02-20",
+      "flagged": true,
+      "flag_reason": "unusual_international_purchase",
+      "unflag_reason": null
+    }
+  ],
+  "review_log": [],
+  "fraud_cases": []
+}

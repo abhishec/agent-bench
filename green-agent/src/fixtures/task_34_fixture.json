@@ -1,0 +1,42 @@
+{
+  "invoices": [
+    {
+      "invoice_id": "INV-7741",
+      "vendor_id": "VEND-0052",
+      "amount": 3450.00,
+      "payment_terms": "net-30",
+      "due_date": "2026-03-15",
+      "status": "pending",
+      "three_way_match": false
+    }
+  ],
+  "purchase_orders": [
+    {
+      "po_id": "PO-7741",
+      "vendor_id": "VEND-0052",
+      "amount": 3450.00,
+      "status": "received"
+    }
+  ],
+  "receipts": [
+    {
+      "receipt_id": "REC-7741",
+      "po_id": "PO-7741",
+      "amount": 3450.00,
+      "received_date": "2026-02-12"
+    }
+  ],
+  "vendors": [
+    {
+      "vendor_id": "VEND-0052",
+      "name": "OfficeSupply Co",
+      "banking_ref": "BANK-0052",
+      "payment_method": "ACH"
+    }
+  ],
+  "scheduled_payments": [],
+  "accounts_payable": {
+    "total_outstanding": 47820.00,
+    "invoices_pending": ["INV-7741", "INV-7698", "INV-7715"]
+  }
+}

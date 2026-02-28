@@ -1,0 +1,36 @@
+{
+  "contracts": [
+    {
+      "contract_id": "CONT-3301",
+      "type": "NDA",
+      "vendor_id": "VEND-0117",
+      "vendor_name": "CloudStore LLC",
+      "status": "under_review",
+      "flagged_clauses": [],
+      "clauses": {
+        "1": "Both parties agree to maintain confidentiality of shared information.",
+        "5": "Agreement term: 3 years from effective date.",
+        "8": "Data Handling and Usage",
+        "8.3": "Vendor may use Client data for product improvement.",
+        "10": "Governing law: State of Delaware."
+      }
+    }
+  ],
+  "policies": [
+    {
+      "policy_id": "POL-DS-01",
+      "name": "Data Sharing Policy",
+      "description": "Client data must not be shared, accessed, or used by vendors for any purpose beyond fulfilling the contracted service. Vendors may not use client data for product improvement, AI training, analytics, or any secondary purpose."
+    }
+  ],
+  "vendors": [
+    {
+      "vendor_id": "VEND-0117",
+      "name": "CloudStore LLC",
+      "contact_email": "legal@cloudstore.com"
+    }
+  ],
+  "legal_team_notified": false,
+  "contract_approved": false,
+  "amendment_requests": []
+}

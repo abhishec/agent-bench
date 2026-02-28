@@ -1,0 +1,26 @@
+{
+  "campaigns": [
+    {
+      "campaign_id": "CAMP-4421",
+      "name": "Q2 Product Launch",
+      "requested_by": "MKT-0031",
+      "requester_name": "Jennifer Lee",
+      "requester_email": "jennifer.lee@company.com",
+      "budget_requested": 45000.00,
+      "status": "pending_approval",
+      "start_date": "2026-04-01",
+      "budget_approved": null
+    }
+  ],
+  "department_budgets": [
+    {
+      "department": "Marketing",
+      "quarter": "Q2",
+      "total_budget": 180000.00,
+      "spent": 92000.00,
+      "remaining": 88000.00
+    }
+  ],
+  "campaign_manager_notified": false,
+  "budget_log": []
+}

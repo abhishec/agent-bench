@@ -1,0 +1,26 @@
+{
+  "accounts": [
+    {
+      "account_id": "ACC-4892",
+      "customer_name": "James Chen",
+      "email": "james.chen4892@example.com",
+      "balance": 28450.00,
+      "status": "active",
+      "daily_wire_limit": 10000.00,
+      "wire_sent_today": 0.00,
+      "identity_verified": false
+    }
+  ],
+  "external_accounts": [
+    {
+      "account_id": "EXTACC-8821",
+      "bank_name": "Wells Fargo",
+      "routing_number": "121000248",
+      "account_holder": "James Chen",
+      "account_type": "checking"
+    }
+  ],
+  "wire_transfer": {},
+  "confirmation_sent": false,
+  "wire_log": []
+}
