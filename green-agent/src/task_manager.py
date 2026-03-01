@@ -78,6 +78,9 @@ async def run_assessment(
         },
     }
 
+    sid_short = session_id[:8]
+    print(f"[BENCH START] task={task_id} diff={difficulty} sid={sid_short} purple={purple_agent_url}", flush=True)
+
     answer = ""
     error = None
     try:
@@ -93,10 +96,22 @@ async def run_assessment(
                     answer = parts[0].get("text", "")
     except Exception as e:
         error = str(e)
+        print(f"[BENCH ERROR] task={task_id} diff={difficulty} sid={sid_short} error={str(e)[:120]}", flush=True)
 
     tool_calls = await get_tool_calls(session_id)
     violations = get_constraint_violations(session_id)
     score = score_task(task_id, fixture, fixture, tool_calls, answer, violations, difficulty=difficulty)
+
+    passed_str = "PASS" if score.overall >= 70.0 else "FAIL"
+    func = score.dimensions.get("functional", 0.0)
+    policy = score.dimensions.get("policy_compliance", 0.0)
+    print(
+        f"[BENCH SCORE] task={task_id} diff={difficulty} sid={sid_short} "
+        f"overall={score.overall:.1f} {passed_str} "
+        f"func={func:.1f} policy={policy:.1f} "
+        f"tools={len(tool_calls)} answer_len={len(answer)}",
+        flush=True,
+    )
 
     try:
         FailureTracker().record_run(

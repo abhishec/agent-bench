@@ -130,6 +130,7 @@ class MCPRequest(BaseModel):
 @app.post("/mcp")
 async def mcp_call(req: MCPRequest):
     session_id = req.session_id or str(uuid.uuid4())
+    print(f"[MCP CALL] tool={req.tool} sid={session_id[:8]}", flush=True)
     result = await call_tool(req.tool, req.params, session_id)
     return result
 

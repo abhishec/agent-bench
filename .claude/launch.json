@@ -3,14 +3,14 @@
   "configurations": [
     {
       "name": "green-agent",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "9009", "--reload", "--app-dir", "green-agent"],
+      "runtimeExecutable": "/opt/homebrew/bin/python3.13",
+      "runtimeArgs": ["-c", "import sys; sys.path.insert(0, '/tmp/green-agent-preview'); import uvicorn; uvicorn.run('src.server:app', host='0.0.0.0', port=9009, loop='asyncio', log_level='info')"],
       "port": 9009
     },
     {
       "name": "purple-agent",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "9010", "--reload", "--app-dir", "purple-agent"],
+      "runtimeArgs": ["-m", "uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "9010", "--app-dir", "purple-agent"],
       "port": 9010
     }
   ]

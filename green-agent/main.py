@@ -38,6 +38,7 @@ def main():
         host=args.host,
         port=args.port,
         reload=False,
+        loop="asyncio",
         log_level="info",
     )
 
