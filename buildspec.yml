@@ -1,90 +1,27 @@
 version: 0.2
 
+# Builds GREEN agent only.
+# Purple agent is built and deployed from github.com/abhishec/purple-agent.
+
 env:
   variables:
     AWS_REGION: "us-east-1"
-    AWS_ACCOUNT_ID: "848269696611"
     ECR_REGISTRY: "848269696611.dkr.ecr.us-east-1.amazonaws.com"
-    PUBLIC_ECR_REGISTRY: "public.ecr.aws/d9m7h3k5"
-    GHCR_REGISTRY: "ghcr.io"
-    GITHUB_USER: "abhishec"
-    # GITHUB_TOKEN is optional — set SSM param /agentbench/github-token to enable GHCR push
-    GITHUB_TOKEN: ""
 
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR private registry..."
+      - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-
-      - echo "Logging in to Amazon ECR public registry..."
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws || echo "Public ECR login failed - will skip public push"
-
-      - |
-        # Try to get GitHub token from SSM (optional — GHCR push is best-effort)
-        GITHUB_TOKEN=$(aws ssm get-parameter --name /agentbench/github-token --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-        if [ -n "$GITHUB_TOKEN" ]; then
-          echo "Logging in to GitHub Container Registry..."
-          echo $GITHUB_TOKEN | docker login $GHCR_REGISTRY --username $GITHUB_USER --password-stdin && echo "GHCR login succeeded" || echo "GHCR login failed"
-          export GHCR_ENABLED=true
-        else
-          echo "No GHCR token found — skipping GHCR push (set /agentbench/github-token SSM param to enable)"
-          export GHCR_ENABLED=false
-        fi
 
   build:
     commands:
-      - echo Building green-agent...
+      - echo "Building green-agent..."
       - docker build --no-cache --platform linux/amd64 -t agentbench-green:latest ./green-agent
       - docker tag agentbench-green:latest $ECR_REGISTRY/agentbench-green:latest
-      - docker tag agentbench-green:latest $PUBLIC_ECR_REGISTRY/agentbench-green:latest
-      - |
-        GHCR_TOKEN=$(aws ssm get-parameter --name /agentbench/github-token --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-        if [ -n "$GHCR_TOKEN" ]; then
-          docker tag agentbench-green:latest $GHCR_REGISTRY/$GITHUB_USER/agentbench-green:latest
-        fi
-
-      - echo Building purple-agent...
-      - docker build --no-cache --platform linux/amd64 -t agentbench-purple:latest ./purple-agent
-      - docker tag agentbench-purple:latest $ECR_REGISTRY/agentbench-purple:latest
-      - docker tag agentbench-purple:latest $PUBLIC_ECR_REGISTRY/agentbench-purple:latest
-      - |
-        GHCR_TOKEN=$(aws ssm get-parameter --name /agentbench/github-token --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-        if [ -n "$GHCR_TOKEN" ]; then
-          docker tag agentbench-purple:latest $GHCR_REGISTRY/$GITHUB_USER/agentbench-purple:latest
-        fi
 
   post_build:
     commands:
-      - echo Pushing green-agent to private ECR...
+      - echo "Pushing green-agent to ECR..."
       - docker push $ECR_REGISTRY/agentbench-green:latest
-
-      - echo Pushing purple-agent to private ECR...
-      - docker push $ECR_REGISTRY/agentbench-purple:latest
-
-      - echo Pushing green-agent to public ECR...
-      - docker push $PUBLIC_ECR_REGISTRY/agentbench-green:latest || echo "Public ECR push failed (green)"
-
-      - echo Pushing purple-agent to public ECR...
-      - docker push $PUBLIC_ECR_REGISTRY/agentbench-purple:latest || echo "Public ECR push failed (purple)"
-
-      - |
-        # Push to GHCR if token available
-        GHCR_TOKEN=$(aws ssm get-parameter --name /agentbench/github-token --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-        if [ -n "$GHCR_TOKEN" ]; then
-          echo "Pushing green-agent to GHCR..."
-          docker push $GHCR_REGISTRY/$GITHUB_USER/agentbench-green:latest || echo "GHCR push failed"
-          echo "Pushing purple-agent to GHCR..."
-          docker push $GHCR_REGISTRY/$GITHUB_USER/agentbench-purple:latest || echo "GHCR push failed"
-          echo "GHCR images: ghcr.io/$GITHUB_USER/agentbench-green:latest"
-          echo "GHCR images: ghcr.io/$GITHUB_USER/agentbench-purple:latest"
-        else
-          echo "Skipping GHCR push (no token). ECR pushes completed successfully."
-        fi
-
-      - |
-        echo "=== Image Summary ==="
-        echo "Private ECR: $ECR_REGISTRY/agentbench-green:latest"
-        echo "Private ECR: $ECR_REGISTRY/agentbench-purple:latest"
-        echo "Public ECR:  $PUBLIC_ECR_REGISTRY/agentbench-green:latest"
-        echo "Public ECR:  $PUBLIC_ECR_REGISTRY/agentbench-purple:latest"
+      - echo "Done. Green image: $ECR_REGISTRY/agentbench-green:latest"
