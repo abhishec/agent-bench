@@ -1,0 +1,158 @@
+version: 0.2
+
+# AgentBench Competition Stress Test Runner
+# ─────────────────────────────────────────
+# Runs competition_stress_test.py for 2 hours hitting LIVE AWS agents:
+#   Green:  https://benchmark.usebrainos.com   (ECS Fargate)
+#   Purple: https://purple.agentbench.usebrainos.com  (ECS Fargate)
+#
+# Results and training data saved to S3:
+#   s3://nexusbrain-codebuild-source-848269696611/agentbench-reports/stress-<timestamp>.jsonl
+#   s3://nexusbrain-codebuild-source-848269696611/agentbench-reports/stress-<timestamp>-analysis.md
+#   s3://nexusbrain-codebuild-source-848269696611/agentbench-reports/stress-<timestamp>-training.jsonl
+#
+# Trigger: aws codebuild start-build --project-name agentbench-stress-runner
+# Monitor: aws codebuild batch-get-builds --ids <build-id>
+# Logs:    CloudWatch /aws/codebuild/agentbench-stress-runner
+
+env:
+  variables:
+    AWS_REGION: "us-east-1"
+    GREEN_URL: "https://benchmark.usebrainos.com"
+    PURPLE_URL: "https://purple.agentbench.usebrainos.com"
+    S3_BUCKET: "nexusbrain-codebuild-source-848269696611"
+    S3_PREFIX: "agentbench-reports"
+    STRESS_HOURS: "2"
+    TASK_SET: "all_38"
+    DIFFICULTIES: "all"
+  parameter-store:
+    BENCHMARK_API_KEY: "/agentbench/benchmark-api-key"
+    ANTHROPIC_API_KEY: "/agentbench/anthropic-api-key"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing dependencies..."
+      - pip install httpx --quiet
+      - echo "✅ Dependencies installed"
+
+  pre_build:
+    commands:
+      - echo "=== AgentBench Competition Stress Test ==="
+      - echo "Run ID - $CODEBUILD_BUILD_ID"
+      - TS=$(date -u +%Y%m%d_%H%M%S)
+      - RESULTS_FILE="/tmp/stress_${TS}.jsonl"
+      - ANALYSIS_FILE="/tmp/stress_${TS}_analysis.md"
+      - TRAINING_FILE="/tmp/stress_${TS}_training.jsonl"
+      - echo "Timestamp - $TS"
+      - echo "Results file - $RESULTS_FILE"
+      - echo "Verifying green agent is up..."
+      - curl -sf $GREEN_URL/health || (echo "❌ Green agent unreachable" && exit 1)
+      - echo "Verifying purple agent is up..."
+      - curl -sf $PURPLE_URL/health || (echo "❌ Purple agent unreachable" && exit 1)
+      - echo "✅ Both agents healthy - starting $STRESS_HOURS hour stress test"
+
+  build:
+    commands:
+      # S3-sync background job — uploads results every 10 min so data isn't lost if build times out
+      - |
+        (while true; do
+          sleep 600
+          if [ -f "$RESULTS_FILE" ]; then
+            aws s3 cp "$RESULTS_FILE" "s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_inprogress.jsonl" --quiet
+            echo "[sync] Uploaded $(wc -l < $RESULTS_FILE) results to S3"
+          fi
+        done) &
+        SYNC_PID=$!
+        echo "Background S3 sync PID - $SYNC_PID"
+
+      # Run the actual stress test
+      - |
+        python3 bench-runner/competition_stress_test.py \
+          --hours $STRESS_HOURS \
+          --difficulty $DIFFICULTIES \
+          --task-set $TASK_SET \
+          --mode individual \
+          --log-file "$RESULTS_FILE" \
+          --leaderboard-every 20
+
+      - kill $SYNC_PID 2>/dev/null || true
+      - echo "Stress test complete. Results - $(wc -l < $RESULTS_FILE) runs"
+
+  post_build:
+    commands:
+      # Upload raw results JSONL
+      - |
+        echo "Uploading results to S3..."
+        aws s3 cp "$RESULTS_FILE" \
+          "s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}.jsonl"
+        echo "✅ Results uploaded"
+
+      # Run analysis and upload markdown report
+      - |
+        echo "Generating analysis report..."
+        python3 bench-runner/analyze_stress_test.py \
+          "$RESULTS_FILE" --markdown > "$ANALYSIS_FILE" 2>&1
+        aws s3 cp "$ANALYSIS_FILE" \
+          "s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_analysis.md"
+        echo "✅ Analysis uploaded"
+        echo "--- Analysis preview ---"
+        head -60 "$ANALYSIS_FILE"
+
+      # Convert JSONL results to training data format for RL fine-tuning
+      - |
+        echo "Converting to training data..."
+        python3 -c "
+import json, sys
+from pathlib import Path
+
+results_file = '$RESULTS_FILE'
+training_file = '$TRAINING_FILE'
+rows = [json.loads(l) for l in open(results_file) if l.strip()]
+
+training = []
+for r in rows:
+    if r.get('overall', 0) >= 70:  # Only positive examples
+        training.append({
+            'task_id': r['task_id'],
+            'difficulty': r.get('difficulty', 'none'),
+            'score': r['overall'],
+            'tool_calls': r.get('tool_calls', 0),
+            'answer': r.get('answer', ''),
+            'example_type': 'positive',
+            'source': 'stress_test_$TS',
+        })
+    else:  # Negative examples for learning what not to do
+        training.append({
+            'task_id': r['task_id'],
+            'difficulty': r.get('difficulty', 'none'),
+            'score': r['overall'],
+            'tool_calls': r.get('tool_calls', 0),
+            'answer': r.get('answer', ''),
+            'example_type': 'negative',
+            'source': 'stress_test_$TS',
+        })
+
+pos = sum(1 for t in training if t['example_type'] == 'positive')
+neg = len(training) - pos
+print(f'Training examples: {pos} positive, {neg} negative, {len(training)} total')
+with open(training_file, 'w') as f:
+    for t in training:
+        f.write(json.dumps(t) + '\n')
+"
+        aws s3 cp "$TRAINING_FILE" \
+          "s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_training.jsonl"
+        echo "✅ Training data uploaded"
+
+      # Print final S3 locations
+      - echo "========================================"
+      - echo "ALL RESULTS SAVED TO S3:"
+      - 'echo "  Raw results:   s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}.jsonl"'
+      - 'echo "  Analysis:      s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_analysis.md"'
+      - 'echo "  Training data: s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_training.jsonl"'
+      - echo "========================================"
+      - echo "To fetch and view results:"
+      - 'echo "  aws s3 cp s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_analysis.md - | cat"'
+      - echo "========================================"
