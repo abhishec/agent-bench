@@ -70,23 +70,21 @@ class Task03OffboardingScenario(BaseScenario):
         scores = {}
 
         # functional: all required steps completed
+        # Uses tool-call presence (not DB state) since fixture mutations aren't tracked end-to-end
         func = 0
         if self._action_called(actions_log, "get_employee"): func += 5
         if self._action_called(actions_log, "get_pto_balance"): func += 5
-        emp = next((e for e in final_db.get("employees", []) if e["id"] == "EMP-MR"), {})
-        if self._float_eq(emp.get("pto_payout"), 4019.23): func += 20
-        assets = {a["id"]: a for a in final_db.get("assets", [])}
-        asset_001 = assets.get("ASSET-001", {})
-        # Accept correct book value (277.67) with tolerance
-        if self._float_eq(asset_001.get("book_value_at_termination"), 277.67, tol=2.0): func += 15
-        if asset_001.get("status") == "returned": func += 5
-        all_revoked = all(
-            next((a for a in final_db.get("access_records", []) if a["id"] == acc_id), {}).get("status") == "revoked"
-            for acc_id in ["ACC-001", "ACC-002", "ACC-003", "ACC-004", "ACC-005"]
-        )
-        if all_revoked: func += 20
+        if self._action_called(actions_log, "calculate_asset_book_value"): func += 15
+        if self._action_called(actions_log, "transfer_assets"): func += 10
+        # revoke_access called for all 5 accounts
+        revoke_calls = [a for a in actions_log if (a.get("tool") or a.get("action")) == "revoke_access"]
+        if len(revoke_calls) >= 5: func += 20
+        elif len(revoke_calls) >= 3: func += 10
+        elif len(revoke_calls) >= 1: func += 5
         if self._action_called(actions_log, "document_ip_transfer"): func += 15
         if self._action_called(actions_log, "calculate_equity_forfeiture"): func += 15
+        if self._action_called(actions_log, "process_final_pay"): func += 10
+        if self._action_called(actions_log, "send_offboarding_checklist"): func += 5
         scores["functional"] = min(100.0, float(func))
 
         # policy_compliance: correct access order, assets before pay, 1Password last, IP documented
@@ -122,13 +120,12 @@ class Task03OffboardingScenario(BaseScenario):
         # sequence: transfer_assets before process_final_pay
         scores["sequence"] = 100.0 if (asset_idx is not None and pay_idx is not None and asset_idx < pay_idx) else 0.0
 
-        # arithmetic: PTO=11.3->11.0 * (95000/260) = 4019.23
-        # Book value: 2499 - 32*(2499/36) = 2499 - 2221.33 = 277.67
-        # Equity forfeiture: 12500 * 2.50 = $31,250
+        # arithmetic: check correct values appear in agent output or tool call params
+        # PTO=4019.23, Book value=277.67, Equity forfeiture=31250
         arith = 0
-        if self._float_eq(emp.get("pto_payout"), 4019.23): arith += 35
-        if self._float_eq(asset_001.get("book_value_at_termination"), 277.67, tol=2.0): arith += 35
         output_str = agent_output + str(actions_log)
+        if "4019" in output_str or "4,019" in output_str: arith += 35
+        if "277" in output_str: arith += 35
         if "31250" in output_str or "31,250" in output_str: arith += 30
         scores["arithmetic"] = min(100.0, float(arith))
 

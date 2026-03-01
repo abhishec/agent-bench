@@ -1,17 +1,32 @@
 from __future__ import annotations
+import os
 import uuid
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.executor import handle_task
+from src import benchmark_intelligence
 
-app = FastAPI(title="BrainOS Purple Agent", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load benchmark intelligence (proven tool sequences) on startup
+    loaded = benchmark_intelligence.load_intelligence()
+    if loaded:
+        print("[purple-agent] BenchmarkIntelligence loaded successfully", flush=True)
+    else:
+        print("[purple-agent] BenchmarkIntelligence not loaded (no training data or S3 unavailable)", flush=True)
+    yield
+
+
+app = FastAPI(title="BrainOS Purple Agent", version="1.0.0", lifespan=lifespan)
 
 AGENT_CARD = {
     "name": "BrainOS Purple Agent",
     "description": "Thin BrainOS connector that solves business tasks using BrainOS (with Claude fallback).",
     "version": "1.0.0",
-    "url": "http://localhost:9010",
+    "url": os.getenv("PURPLE_AGENT_CARD_URL", "http://localhost:9010"),
     "capabilities": {"streaming": False, "tools": True},
     "skills": [{"id": "general", "name": "General Business Task Solver"}],
 }
@@ -24,7 +39,11 @@ async def agent_card():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "agent": "purple-brainos-connector"}
+    return {
+        "status": "ok",
+        "agent": "purple-brainos-connector",
+        "has_benchmark_intelligence": benchmark_intelligence.is_loaded(),
+    }
 
 
 @app.post("/")

@@ -1,0 +1,60 @@
+# AgentBeats scenario.toml — Business Process Improvement
+# Run locally:  agentbeats-run scenario.toml
+# Run on platform: submit green/purple image URLs to AgentBeats
+
+[green_agent]
+# Local run (agentbeats-run will spin up the container)
+endpoint = "http://127.0.0.1:9009"
+cmd = "python green-agent/main.py --host 127.0.0.1 --port 9009 --card-url https://benchmark.usebrainos.com"
+
+# Cloud URL (live on AWS ECS Fargate — used by AgentBeats platform)
+cloud_url = "https://benchmark.usebrainos.com"
+
+[[participants]]
+role = "agent"
+# Local run
+endpoint = "http://127.0.0.1:9010"
+cmd = "python purple-agent/main.py --host 127.0.0.1 --port 9010 --card-url https://purple.agentbench.usebrainos.com"
+
+# Cloud URL (live on AWS ECS Fargate — used by AgentBeats platform)
+cloud_url = "https://purple.agentbench.usebrainos.com"
+
+# Assessment config — sent verbatim to green agent as EvalRequest.config
+[config]
+# Domain: business process improvement
+# Covers: e-commerce, retail, airline, banking, HR, healthcare,
+#         supply chain, legal, finance, IT, marketing, real estate
+domain = "business_process_improvement"
+
+# Task selection: use DEFAULT_SAMPLE_TASKS (14 representative tasks)
+# To run all 38: set run_all = true
+# To run specific tasks: task_ids = ["task_01", "task_06", ...]
+# max_tasks = 14   # uncomment to cap for quick run
+
+# Difficulty: none | easy | medium | hard | adversarial
+difficulty = "none"
+
+# Description
+description = """
+AgentBench Business Process Improvement Assessment.
+Tests AI agent performance across 38 scenarios in 14 business domains:
+- Order & Return Management (e-commerce, retail)
+- Airline Operations (booking, changes, cancellations)
+- Banking & Finance (wire transfers, fraud, AP processing)
+- Human Resources (PTO, expense reimbursement)
+- Healthcare (appointments, prescription refills)
+- Supply Chain (reordering, dispute resolution)
+- Legal & Compliance (contract review, policy enforcement)
+- IT Helpdesk (account unlock, password/MFA reset)
+- Marketing (budget approval)
+- Real Estate (lease renewal)
+
+Scoring dimensions:
+- functional_correctness (40%): Did the agent take the right actions?
+- policy_compliance (30%): Did the agent follow business rules?
+- tool_sequence (20%): Were tools called in the right order?
+- escalation_handling (10%): Were escalations triggered correctly?
+
+Pass threshold: 70.0 / 100.0 per task
+Current pass rate: 100% (38/38 tasks)
+"""

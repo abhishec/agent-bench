@@ -54,14 +54,14 @@ class AdaptiveEngine:
         patterns = self._tracker.get_failure_patterns(task_id=task_id, last_n_hours=last_n_hours)
         suggestions = []
         for p in patterns:
-            rec = _pattern_recommendation(p["pattern"])
+            rec = _pattern_recommendation(p["pattern_type"])
             suggestions.append({
                 "task_id": p["task_id"],
                 "dimension": p["dimension"],
-                "pattern": p["pattern"],
+                "pattern": p["pattern_type"],
                 "failure_count": p["count"],
                 "recommendation": rec,
-                "training_type": _training_type(p["pattern"]),
+                "training_type": _training_type(p["pattern_type"]),
             })
         return suggestions
 

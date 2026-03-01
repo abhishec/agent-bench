@@ -60,7 +60,7 @@ def get_ucb_recommendations(n=5):
 def run_benchmark(task_id, purple_url, difficulty="none"):
     payload = {
         "task_id": task_id,
-        "purple_agent_url": purple_url,
+        "purple_url": purple_url,
         "difficulty": difficulty,
     }
     r = httpx.post(f"{GREEN_URL}/benchmark", json=payload, timeout=180)

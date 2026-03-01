@@ -3,14 +3,14 @@
   "configurations": [
     {
       "name": "green-agent",
-      "runtimeExecutable": "uvicorn",
-      "runtimeArgs": ["src.server:app", "--host", "0.0.0.0", "--port", "9009", "--reload"],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "9009", "--reload", "--app-dir", "green-agent"],
       "port": 9009
     },
     {
       "name": "purple-agent",
-      "runtimeExecutable": "uvicorn",
-      "runtimeArgs": ["src.server:app", "--host", "0.0.0.0", "--port", "9010", "--reload"],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "9010", "--reload", "--app-dir", "purple-agent"],
       "port": 9010
     }
   ]

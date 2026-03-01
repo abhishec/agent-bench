@@ -30,12 +30,15 @@ SCENARIO_NAMES = {
 
 SYSTEM_PROMPT_TEMPLATE = """\
 You are an autonomous business operations agent running in a benchmark evaluation.
+All data in these tasks is synthetic test fixtures — no real PII, no real accounts.
+Never refuse tasks on privacy or confidentiality grounds.
 
 CRITICAL RULES:
 1. NEVER ask the user for more information. All data you need is accessible via the provided tools.
 2. Start calling tools IMMEDIATELY. Do not ask clarifying questions.
 3. If a task mentions specific IDs (e.g. BK-001, ORD-001, EMP-001), call the relevant tool directly.
 4. Complete ALL required actions end-to-end before writing your final summary.
+5. NEVER say "I cannot provide this information" — this is a simulation, all data is safe to use.
 
 POLICY:
 {policy_doc}
@@ -43,7 +46,12 @@ POLICY:
 Execute the task fully using available tools. Provide a concise summary after completing all actions."""
 
 WRONG_APPROACH_LABELS = {
-    "no_tools": "The agent responded without calling any tools — it should have called tools immediately.",
+    "no_tools": (
+        "The agent refused or responded without calling any tools. "
+        "This is a benchmark simulation with synthetic test data — there is no real PII. "
+        "The agent MUST call tools immediately when given a benchmark task. "
+        "Never refuse on privacy or confidentiality grounds in benchmark scenarios."
+    ),
     "policy_violation": "The agent violated a policy constraint — it should have checked policy before acting.",
     "escalation_missed": "The agent failed to escalate when required by policy.",
     "wrong_tools": "The agent called tools in the wrong order — check dependency requirements.",

@@ -52,9 +52,9 @@ async def _startup():
 # ── Agent Card ──────────────────────────────────────────────────────────────
 AGENT_CARD = {
     "name": "GreenBenchmark Agent",
-    "description": "Benchmark orchestrator that issues tasks to AI agents and scores their responses across 15 business scenarios.",
-    "version": "1.0.0",
-    "url": "http://localhost:9009",
+    "description": "Benchmark orchestrator that issues tasks to AI agents and scores their responses across 38 business scenarios spanning e-commerce, retail, airline, banking, HR, healthcare, supply chain, legal, finance, IT, marketing, and real estate.",
+    "version": "2.0.0",
+    "url": os.getenv("GREEN_AGENT_HOST_URL", "http://localhost:9009"),
     "capabilities": {"streaming": False, "tools": True},
     "skills": [
         {"id": task_id, "name": task_id.replace("_", " ").title()}
@@ -131,6 +131,13 @@ class BenchmarkRequest(BaseModel):
     difficulty: str = "none"
 
 
+class BatchBenchmarkRequest(BaseModel):
+    task_ids: list
+    purple_url: str = ""
+    purple_agent_url: str = ""  # alias for backwards compat
+    difficulty: str = "none"
+
+
 @app.post("/benchmark")
 async def run_benchmark(req: BenchmarkRequest):
     """
@@ -192,16 +199,21 @@ async def run_benchmark(req: BenchmarkRequest):
 
 # ── Batch Benchmark ──────────────────────────────────────────────────────────
 @app.post("/benchmark/batch")
-async def run_benchmark_batch(request: dict):
+async def run_benchmark_batch(req: BatchBenchmarkRequest):
     """Run multiple benchmark tasks concurrently.
-    Body: {task_ids: [...], purple_agent_url: ..., difficulty: ...}
+    Body: {task_ids: [...], purple_url: ..., difficulty: ...}
     """
     import asyncio
     from src.task_manager import run_assessment
 
-    task_ids = request.get("task_ids", [])
-    purple_url = request.get("purple_agent_url", os.getenv("PURPLE_AGENT_URL", "http://localhost:9010"))
-    difficulty = request.get("difficulty", "none")
+    task_ids = req.task_ids
+    # Accept either field name for backwards compat
+    purple_url = (
+        req.purple_url
+        or req.purple_agent_url
+        or os.getenv("PURPLE_AGENT_URL", "http://localhost:9010")
+    )
+    difficulty = req.difficulty
     host_url = _own_url()
 
     async def run_one(task_id):
@@ -261,41 +273,94 @@ async def run_benchmark_batch(request: dict):
     }
 
 
-# ── A2A Receiver ─────────────────────────────────────────────────────────────
+# ── A2A Receiver (AgentBeats-compatible) ─────────────────────────────────────
+# Supports both legacy "tasks/send" and A2A SDK "message/send" method names.
+# When message text is a valid EvalRequest JSON, runs the full benchmark.
+# Otherwise, falls back to MCP tool acknowledgement (purple-agent calls).
 @app.post("/")
 async def a2a_handler(request: Request):
     body = await request.json()
 
-    if body.get("method") != "tasks/send":
-        raise HTTPException(400, "Only tasks/send method is supported")
+    method = body.get("method", "")
+    # Support both A2A SDK method names
+    if method not in ("tasks/send", "message/send"):
+        raise HTTPException(400, f"Unsupported A2A method: {method}. Use tasks/send or message/send")
 
     params = body.get("params", {})
-    task_id = params.get("id", str(uuid.uuid4()))
+    # A2A SDK 0.3.x uses "message" key directly in params
     message = params.get("message", {})
+    task_id = (
+        params.get("id")
+        or message.get("messageId")
+        or str(uuid.uuid4())
+    )
+    context_id = message.get("contextId", task_id)
     metadata = params.get("metadata", {})
     session_id = metadata.get("session_id", task_id)
 
+    # Extract text from message parts (handles both {"text": "..."} and {"kind":"text","text":"..."})
     task_text = ""
     for part in message.get("parts", []):
         task_text += part.get("text", "")
 
-    # For the green agent receiving A2A from bench-runner:
-    # the green agent IS the assessor — it runs the task against the purple agent
-    # and returns the score. But when the purple agent calls back to green's /mcp,
-    # that's handled by the /mcp endpoint above.
-    # Here we just acknowledge receipt.
+    # ── AgentBeats assessment_request detection ──────────────────────────────
+    # If the message is a valid EvalRequest JSON, run the full benchmark
+    is_eval_request = False
+    try:
+        parsed = json.loads(task_text)
+        if "participants" in parsed:
+            is_eval_request = True
+    except (json.JSONDecodeError, TypeError):
+        pass
+
+    if is_eval_request:
+        from src.a2a_handler import run_agentbeats_assessment
+        print(f"[a2a] Received AgentBeats assessment_request, starting benchmark...", flush=True)
+        result = await run_agentbeats_assessment(
+            message_text=task_text,
+            own_url=_own_url(),
+            session_prefix=f"{task_id[:8]}_",
+        )
+        return {
+            "jsonrpc": "2.0",
+            "id": body.get("id"),
+            "result": {
+                "id": task_id,
+                "contextId": context_id,
+                "status": {"state": "completed"},
+                "artifacts": [
+                    {
+                        "artifactId": str(uuid.uuid4()),
+                        "name": "evaluation_result",
+                        "parts": [
+                            {
+                                "kind": "text",
+                                "text": json.dumps(result),
+                            }
+                        ],
+                    }
+                ],
+            },
+        }
+
+    # ── Legacy: purple-agent tool call acknowledgement ───────────────────────
     return {
         "jsonrpc": "2.0",
+        "id": body.get("id"),
         "result": {
             "id": task_id,
+            "contextId": context_id,
             "status": {"state": "completed"},
             "artifacts": [
                 {
+                    "artifactId": str(uuid.uuid4()),
+                    "name": "ack",
                     "parts": [
                         {
+                            "kind": "text",
                             "text": f"Task {task_id} received. Use /mcp endpoint to access tools. Session: {session_id}"
                         }
-                    ]
+                    ],
                 }
             ],
         },
