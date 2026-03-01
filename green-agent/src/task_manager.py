@@ -84,7 +84,7 @@ async def run_assessment(
     answer = ""
     error = None
     try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=90.0) as client:
             resp = await client.post(purple_agent_url, json=a2a_payload)
             resp.raise_for_status()
             data = resp.json()

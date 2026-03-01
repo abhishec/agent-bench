@@ -173,7 +173,7 @@ def run_single_task(task_id: str, purple_url: str, difficulty: str = "none") -> 
         f"{GREEN_URL}/benchmark",
         json={"task_id": task_id, "purple_url": purple_url, "difficulty": difficulty},
         headers=headers,
-        timeout=180,
+        timeout=100,
     )
     resp.raise_for_status()
     data = resp.json()
