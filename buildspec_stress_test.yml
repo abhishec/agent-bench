@@ -104,44 +104,7 @@ phases:
       # Convert JSONL results to training data format for RL fine-tuning
       - |
         echo "Converting to training data..."
-        python3 -c "
-import json, sys
-from pathlib import Path
-
-results_file = '$RESULTS_FILE'
-training_file = '$TRAINING_FILE'
-rows = [json.loads(l) for l in open(results_file) if l.strip()]
-
-training = []
-for r in rows:
-    if r.get('overall', 0) >= 70:  # Only positive examples
-        training.append({
-            'task_id': r['task_id'],
-            'difficulty': r.get('difficulty', 'none'),
-            'score': r['overall'],
-            'tool_calls': r.get('tool_calls', 0),
-            'answer': r.get('answer', ''),
-            'example_type': 'positive',
-            'source': 'stress_test_$TS',
-        })
-    else:  # Negative examples for learning what not to do
-        training.append({
-            'task_id': r['task_id'],
-            'difficulty': r.get('difficulty', 'none'),
-            'score': r['overall'],
-            'tool_calls': r.get('tool_calls', 0),
-            'answer': r.get('answer', ''),
-            'example_type': 'negative',
-            'source': 'stress_test_$TS',
-        })
-
-pos = sum(1 for t in training if t['example_type'] == 'positive')
-neg = len(training) - pos
-print(f'Training examples: {pos} positive, {neg} negative, {len(training)} total')
-with open(training_file, 'w') as f:
-    for t in training:
-        f.write(json.dumps(t) + '\n')
-"
+        python3 bench-runner/convert_to_training.py "$RESULTS_FILE" "$TRAINING_FILE"
         aws s3 cp "$TRAINING_FILE" \
           "s3://$S3_BUCKET/$S3_PREFIX/stress_${TS}_training.jsonl"
         echo "✅ Training data uploaded"
