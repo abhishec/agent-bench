@@ -7,21 +7,27 @@ env:
   variables:
     AWS_REGION: "us-east-1"
     ECR_REGISTRY: "848269696611.dkr.ecr.us-east-1.amazonaws.com"
+    PUBLIC_ECR_REGISTRY: "public.ecr.aws/d9m7h3k5"
 
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
+      - echo "Logging in to Amazon ECR (private)..."
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - echo "Logging in to Amazon ECR (public)..."
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
 
   build:
     commands:
       - echo "Building green-agent..."
       - docker build --no-cache --platform linux/amd64 -t agentbench-green:latest ./green-agent
       - docker tag agentbench-green:latest $ECR_REGISTRY/agentbench-green:latest
+      - docker tag agentbench-green:latest $PUBLIC_ECR_REGISTRY/agentbench-green:latest
 
   post_build:
     commands:
-      - echo "Pushing green-agent to ECR..."
+      - echo "Pushing green-agent to private ECR..."
       - docker push $ECR_REGISTRY/agentbench-green:latest
+      - echo "Pushing green-agent to public ECR (for AgentBeats)..."
+      - docker push $PUBLIC_ECR_REGISTRY/agentbench-green:latest
       - 'echo "Done. Green image: $ECR_REGISTRY/agentbench-green:latest"'
